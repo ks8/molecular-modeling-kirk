@@ -59,8 +59,8 @@ validation_generator = Generator(validation_metadata, im_size=im_size, num_chann
 test_generator = Generator(test_metadata, im_size=im_size, num_channel=4)
 
 """ Hyperparameters """
-batch_size = 60
-epochs = 10
+batch_size = 200
+epochs = 1200
 batches_per_epoch = 10
 examples_per_eval = 1000
 eta = 1e-3
@@ -70,18 +70,18 @@ beta = 0.01
 def deepnn(x):
 	# First convolutional layer
 	x_image = tf.reshape(x, [-1, 250, 250, 3])
-	W_conv1 = weight_variable([10, 10, 3, 6])
-	b_conv1 = bias_variable([6])
+	W_conv1 = weight_variable([10, 10, 3, 6], name="W_conv1")
+	b_conv1 = bias_variable([6], name="b_conv1")
 	h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
  
 	# Second convolutional layer
-	W_conv2 = weight_variable([5, 5, 6, 16])
-	b_conv2 = bias_variable([16])
+	W_conv2 = weight_variable([5, 5, 6, 16], name="W_conv2")
+	b_conv2 = bias_variable([16], name="b_conv2")
 	h_conv2 = tf.nn.relu(conv2d(h_conv1, W_conv2) + b_conv2)
 
 	# Fully connected layer
-	W_fc1 = weight_variable([237 * 237 * 16, 80])
-	b_fc1 = bias_variable([80])
+	W_fc1 = weight_variable([237 * 237 * 16, 80], name="W_fc1")
+	b_fc1 = bias_variable([80], name="b_fc1")
 	h_conv2_flat = tf.reshape(h_conv2, [-1, 237*237*16])
 	h_fc1 = tf.nn.relu(tf.matmul(h_conv2_flat, W_fc1) + b_fc1)
 
@@ -90,8 +90,8 @@ def deepnn(x):
 	h_fc1_drop = tf.nn.dropout(h_fc1, keep_prob, seed=0)
 
 	# Output layer
-	W_fc2 = weight_variable([80, n_outputs])
-	b_fc2 = bias_variable([n_outputs])
+	W_fc2 = weight_variable([80, n_outputs], name="W_fc2")
+	b_fc2 = bias_variable([n_outputs], name="b_fc2")
 	y_conv = tf.matmul(h_fc1_drop, W_fc2) + b_fc2
 
 	# Returns the prediction and the dropout probability placeholder
@@ -109,16 +109,16 @@ def max_pool_2x2(x):
         strides=[1, 2, 2, 1], padding='SAME')
 
 
-def weight_variable(shape):
+def weight_variable(shape, name):
 	"""weight_variable generates a weight variable of a given shape."""
 	initial = tf.truncated_normal(shape, stddev=0.1, seed=0)
-	return tf.Variable(initial)
+	return tf.Variable(initial, name=name)
 
 
-def bias_variable(shape):
+def bias_variable(shape, name):
 	"""bias_variable generates a bias variable of a given shape."""
 	initial = tf.constant(0.1, shape=shape)
-	return tf.Variable(initial)
+	return tf.Variable(initial, name=name)
 
 def plot(train_accuracies, train_losses, validation_accuracies, validation_losses):
 	plt.subplot(221)
@@ -139,7 +139,7 @@ def plot(train_accuracies, train_losses, validation_accuracies, validation_losse
 	plt.plot(range(len(validation_accuracies)), validation_accuracies)
 	plt.xlabel('Number of epochs')
 
-	plt.savefig('test.png')
+	plt.savefig('batch80_evaluation.png')
 
 def main(_):
 	# Input data
@@ -168,6 +168,9 @@ def main(_):
 	train_accuracies = []
 	validation_losses = []
 	validation_accuracies = []
+
+	# Saver
+	saver = tf.train.Saver()
 
 	# Run the network
 	with tf.Session(config=config) as sess:
@@ -238,7 +241,7 @@ def main(_):
 			print('')
 
 			plot(train_accuracies, train_losses, validation_accuracies, validation_losses)
-			
+
 			# Train
 			# for i in tqdm(range(batches_per_epoch)):
 			for i in range(batches_per_epoch):
@@ -265,6 +268,9 @@ def main(_):
 
 		print('final test accuracy %g' % (test_accuracy))
 
+		saver.save(sess, "model200.ckpt")
+		
+
 
 	plot(train_accuracies, train_losses, validation_accuracies, validation_losses)
 
@@ -272,7 +278,7 @@ def main(_):
 	validation_counts = Counter(row['original_label'] for row in validation_generator.metadata)
 	test_counts = Counter(row['original_label'] for row in test_generator.metadata)
 
-	f = open('test.txt', 'w')
+	f = open('batch80_evaluation.txt', 'w')
 	f.write('final validation accuracy %g \n' % (validation_accuracy))
 	f.write('test accuracy %g \n' % (test_accuracy))
 	f.write('train counts glass %g, liquid %g \n' % (train_counts['glass'], train_counts['liquid']))
