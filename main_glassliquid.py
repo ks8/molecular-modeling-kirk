@@ -51,14 +51,16 @@ im_size = 250
 n_outputs = len(unique_labels)
 
 """ Create batch generators for train and test """
-train_metadata, test_metadata = train_test_split(metadata, test_size=0.2, random_state=0)
+train_metadata, remaining_metadata = train_test_split(metadata, test_size=0.3, random_state=0)
+validation_metadata, test_metadata = train_test_split(remaining_metadata, test_size = 0.5, random_state = 0)
 
 train_generator = Generator(train_metadata, im_size=im_size, num_channel=4)
+validation_generator = Generator(validation_metadata, im_size=im_size, num_channel=4)
 test_generator = Generator(test_metadata, im_size=im_size, num_channel=4)
 
 """ Hyperparameters """
-batch_size = 18
-epochs = 30
+batch_size = 60
+epochs = 10
 batches_per_epoch = 10
 examples_per_eval = 1000
 eta = 1e-3
@@ -118,15 +120,15 @@ def bias_variable(shape):
 	initial = tf.constant(0.1, shape=shape)
 	return tf.Variable(initial)
 
-def plot(train_accuracies, train_losses, test_accuracies, test_losses):
+def plot(train_accuracies, train_losses, validation_accuracies, validation_losses):
 	plt.subplot(221)
 	plt.plot(range(len(train_losses)), train_losses)
 	plt.title("Training")
 	plt.ylabel('Loss')
 	
 	plt.subplot(222)
-	plt.plot(range(len(test_losses)), test_losses)
-	plt.title("Test")
+	plt.plot(range(len(validation_losses)), validation_losses)
+	plt.title("validation")
 			
 	plt.subplot(223)
 	plt.plot(range(len(train_accuracies)), train_accuracies)
@@ -134,10 +136,10 @@ def plot(train_accuracies, train_losses, test_accuracies, test_losses):
 	plt.xlabel('Number of epochs')
 
 	plt.subplot(224)
-	plt.plot(range(len(test_accuracies)), test_accuracies)
+	plt.plot(range(len(validation_accuracies)), validation_accuracies)
 	plt.xlabel('Number of epochs')
 
-	plt.savefig('10x10_5x5_error.png')
+	plt.savefig('test.png')
 
 def main(_):
 	# Input data
@@ -164,8 +166,8 @@ def main(_):
 	""" Lists for plotting """
 	train_losses = []
 	train_accuracies = []
-	test_losses = []
-	test_accuracies = []
+	validation_losses = []
+	validation_accuracies = []
 
 	# Run the network
 	with tf.Session(config=config) as sess:
@@ -175,12 +177,15 @@ def main(_):
 
 		# Print class balance
 		train_counts = Counter(row['original_label'] for row in train_generator.metadata)
+		validation_counts = Counter(row['original_label'] for row in validation_generator.metadata)
 		test_counts = Counter(row['original_label'] for row in test_generator.metadata)
 
 		print('')
 		print('class balance')
 		print('train counts')
 		print(train_counts)
+		print('validation counts')
+		print(validation_counts)
 		print('test counts')
 		print(test_counts)
 		print('')
@@ -211,28 +216,28 @@ def main(_):
 			train_accuracies.append(train_accuracy)
 			train_losses.append(train_loss)
 
-			# Evaluate on test set
-			test_batch_accuracies = []
-			test_batch_losses = []
-			for test_X, test_Y in test_generator.data_in_batches(examples_per_eval, batch_size):
-				test_batch_accuracies.append(accuracy.eval(feed_dict={
-						x: test_X, y_: test_Y, keep_prob: 1.0}))
+			# Evaluate on validation set
+			validation_batch_accuracies = []
+			validation_batch_losses = []
+			for validation_X, validation_Y in validation_generator.data_in_batches(examples_per_eval, batch_size):
+				validation_batch_accuracies.append(accuracy.eval(feed_dict={
+						x: validation_X, y_: validation_Y, keep_prob: 1.0}))
 
-				test_batch_losses.append(loss.eval(feed_dict={
-						x: test_X, y_: test_Y, keep_prob: 1.0}))
+				validation_batch_losses.append(loss.eval(feed_dict={
+						x: validation_X, y_: validation_Y, keep_prob: 1.0}))
 
-			test_accuracy = np.mean(test_batch_accuracies)
-			test_loss = np.mean(test_batch_losses)
+			validation_accuracy = np.mean(validation_batch_accuracies)
+			validation_loss = np.mean(validation_batch_losses)
 
-			test_accuracies.append(test_accuracy)
-			test_losses.append(test_loss)
+			validation_accuracies.append(validation_accuracy)
+			validation_losses.append(validation_loss)
 
 			print('training accuracy %g, train loss %g, ' \
-				'test accuracy %g, validation loss %g' %
-				(train_accuracy, train_loss, test_accuracy, test_loss))
+				'validation accuracy %g, validation loss %g' %
+				(train_accuracy, train_loss, validation_accuracy, validation_loss))
 			print('')
 
-			plot(train_accuracies, train_losses, test_accuracies, test_losses)
+			plot(train_accuracies, train_losses, validation_accuracies, validation_losses)
 			
 			# Train
 			# for i in tqdm(range(batches_per_epoch)):
@@ -240,7 +245,41 @@ def main(_):
 				train_X, train_Y = train_generator.next(batch_size)
 				train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: 0.5})
 
-	plot(train_accuracies, train_losses, test_accuracies, test_losses)
+		# Compute total validation set error
+		validation_total_accuracies = []
+		for validation_X, validation_Y in validation_generator.data_in_batches(len(validation_generator.metadata), batch_size):
+			validation_total_accuracies.append(accuracy.eval(feed_dict={
+					x: validation_X, y_: validation_Y, keep_prob: 1.0}))
+
+		validation_accuracy = np.mean(validation_total_accuracies)
+
+		print('final validation accuracy %g' % (validation_accuracy))
+
+		# Compute total test set error
+		test_total_accuracies = []
+		for test_X, test_Y in test_generator.data_in_batches(len(test_generator.metadata), batch_size):
+			test_total_accuracies.append(accuracy.eval(feed_dict={
+					x: test_X, y_: test_Y, keep_prob: 1.0}))
+
+		test_accuracy = np.mean(test_total_accuracies)
+
+		print('final test accuracy %g' % (test_accuracy))
+
+
+	plot(train_accuracies, train_losses, validation_accuracies, validation_losses)
+
+	train_counts = Counter(row['original_label'] for row in train_generator.metadata)
+	validation_counts = Counter(row['original_label'] for row in validation_generator.metadata)
+	test_counts = Counter(row['original_label'] for row in test_generator.metadata)
+
+	f = open('test.txt', 'w')
+	f.write('final validation accuracy %g \n' % (validation_accuracy))
+	f.write('test accuracy %g \n' % (test_accuracy))
+	f.write('train counts glass %g, liquid %g \n' % (train_counts['glass'], train_counts['liquid']))
+	f.write('validation counts glass %g, liquid %g \n' % (validation_counts['glass'], validation_counts['liquid']))
+	f.write('test counts glass %g, liquid %g \n' % (test_counts['glass'], test_counts['liquid']))
+	f.write('epochs = %d, eta = %g, batch_size = %g' % (epochs, eta, batch_size))
+	f.close()
 
 # Run the program 
 if __name__ == '__main__':
