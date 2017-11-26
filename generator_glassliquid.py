@@ -1,12 +1,13 @@
-from scipy.misc import imread, imresize
+from scipy.misc import imread, imresize, imrotate
 import numpy as np
 
 class Generator():
-	def __init__(self, metadata, im_size, num_channel):
+	def __init__(self, metadata, im_size, num_channel, data_aug):
 		self.metadata = metadata
 		self.im_size = im_size
 		self.im_shape = (im_size, im_size, num_channel)
 		self.index = 0
+		self.data_aug = data_aug
 
 	def next(self, batch_size=None):
 		if batch_size is None:
@@ -24,14 +25,24 @@ class Generator():
 		# get the images and labels for the batch
 		images = [None]*batch_size
 		labels = [None]*batch_size
+		rotations = [0, 90, 180, 270]
+		flips = [True, False]
 		for i in range(len(batch)):
 			row = batch[i]
 			images[i] = imresize(imread(row['path']), self.im_shape)
 			images[i] = images[i][:, :, 0:3]
+
+			if self.data_aug:
+				images[i] = imrotate(images[i], np.random.choice(rotations))
+				if np.random.choice(flips):
+					images[i] = np.flipud(images[i])
+
 			labels[i] = row['label']
 
 		images = np.array(images)
 		labels = np.array(labels)
+
+		np.random.shuffle(self.metadata)
 
 		return images, labels
 
