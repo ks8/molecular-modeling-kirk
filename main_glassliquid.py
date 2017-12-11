@@ -22,11 +22,14 @@ def create_parser():
 
 	# Create parser and add arguments
 	parser = argparse.ArgumentParser(description='Read hyperparameter information')
-	parser.add_argument('-eta', dest='eta', default=1e-3, help='Learning rate')
+	parser.add_argument('-eta', dest='eta', default=1e-3, help='final learning rate')
+	parser.add_argument('-eta_initial', dest='eta_initial', default=1e-3, help='initial learning rate')
+	parser.add_argument('-eta_schedule_length', dest='eta_schedule_length', default=100, help='learning rate schedule length')
 	parser.add_argument('-batch_size', dest='batch_size', default=10, help='Batch size')
-	parser.add_argument('-epochs', dest='epochs', default=100, help='Number of epochs to run')
+	parser.add_argument('-iterations', dest='iterations', default=100, help='Number of iterations to run')
 	parser.add_argument('-beta', dest='beta', default=0.01, help='L2 regularization parameter')
 	parser.add_argument('-keep_probability', dest='keep_probability', default=0.5, help='Dropout keep probability')
+	parser.add_argument('-filename', dest='filename', default='test', help='Filename for plots and saved model files')
 
 	return parser
 
@@ -36,10 +39,13 @@ def convert_args(args):
 	# Options dictionary
 	options = {}
 	options['eta'] = args.eta
+	options['eta_initial'] = args.eta_initial
+	options['eta_schedule_length'] = args.eta_schedule_length
 	options['batch_size'] = args.batch_size
-	options['epochs'] = args.epochs
+	options['iterations'] = args.iterations
 	options['beta'] = args.beta
 	options['keep_probability'] = args.keep_probability
+	options['filename'] = args.filename
 
 	return options
 
@@ -67,12 +73,6 @@ def convert_to_one_hot(metadata, one_hot_mapping):
 def conv2d(x, W):
 	"""conv2d returns a 2d convolution layer with full stride."""
 	return tf.nn.conv2d(x, W, strides=[1, 1, 1, 1], padding='VALID')
-
-
-def max_pool_2x2(x):
-	"""max_pool_2x2 downsamples a feature map by 2X."""
-	return tf.nn.max_pool(x, ksize=[1, 2, 2, 1],
-        strides=[1, 2, 2, 1], padding='SAME')
 
 
 def weight_variable(shape, name):
@@ -118,7 +118,7 @@ def deepnn(x, n_outputs):
 	return y_conv, keep_prob, W_conv1, W_conv2, W_fc1, W_fc2
 
 
-def plot(train_accuracies, train_losses, validation_accuracies, validation_losses, eta_original, batch_size, beta, keep_probability):
+def plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename):
 	plt.subplot(221)
 	plt.plot(range(len(train_losses)), train_losses)
 	plt.title("Training")
@@ -131,13 +131,13 @@ def plot(train_accuracies, train_losses, validation_accuracies, validation_losse
 	plt.subplot(223)
 	plt.plot(range(len(train_accuracies)), train_accuracies)
 	plt.ylabel('Accuracy')
-	plt.xlabel('Number of epochs')
+	plt.xlabel('Number of iterations')
 
 	plt.subplot(224)
 	plt.plot(range(len(validation_accuracies)), validation_accuracies)
-	plt.xlabel('Number of epochs')
+	plt.xlabel('Number of iterations')
 
-	plt.savefig('learning_rate_test'+'-'+str(eta_original)+'-'+str(batch_size)+'-'+str(beta)+'-'+str(keep_probability)+'.png')
+	plt.savefig(filename+'.png')
 
 def main(argv):
 
@@ -165,18 +165,21 @@ def main(argv):
 	train_metadata, remaining_metadata = train_test_split(metadata, test_size=0.3, random_state=0)
 	validation_metadata, test_metadata = train_test_split(remaining_metadata, test_size = 0.5, random_state = 0)
 
-	train_generator = Generator(train_metadata, im_size=im_size, num_channel=4, data_aug=False)
-	validation_generator = Generator(validation_metadata, im_size=im_size, num_channel=4, data_aug=False)
-	test_generator = Generator(test_metadata, im_size=im_size, num_channel=4, data_aug=False)
+	train_generator = Generator(train_metadata, im_size=im_size, num_channel=4)
+	validation_generator = Generator(validation_metadata, im_size=im_size, num_channel=4)
+	test_generator = Generator(test_metadata, im_size=im_size, num_channel=4)
 
 	""" Hyperparameters """
 	batch_size = int(options['batch_size'])
-	epochs = int(options['epochs'])
-	batches_per_epoch = 10
+	iterations = int(options['iterations'])
+	batches_per_iteration = 10
 	examples_per_eval = 1000
 	eta_original = float(options['eta'])
+	eta_initial = float(options['eta_initial'])
+	eta_schedule_length = int(options['eta_schedule_length'])
 	beta = float(options['beta'])
 	keep_probability = float(options['keep_probability'])
+	filename=str(options['filename'])
 
 	# Input data
 	x = tf.placeholder(tf.float32, [None, im_size, im_size, 3])
@@ -239,19 +242,19 @@ def main(argv):
 		print('')
 
 		# Print hyperparameters
-		print('epochs = %d, eta = %g, batch_size = %g, beta = %g, keep_probability = %g' % (epochs, eta_original, batch_size, beta, keep_probability))
+		print('iterations = %d, eta = %g, batch_size = %g, beta = %g, keep_probability = %g' % (iterations, eta_original, batch_size, beta, keep_probability))
 		print('')
 
 		# Training
 		print('Training')
-		for epoch in range(epochs):
-			print('epoch {}'.format(epoch))
+		for iteration in range(iterations):
+			print('iteration {}'.format(iteration))
 			print('Evaluating')
 
 			# Evaluate on train set
 			train_batch_accuracies = []
 			train_batch_losses = []
-			for train_X, train_Y in train_generator.data_in_batches(examples_per_eval, batch_size):
+			for train_X, train_Y in train_generator.data_in_batches(examples_per_eval, batch_size, data_aug=False, random_shuffle=True):
 				train_batch_accuracies.append(accuracy.eval(feed_dict={
 						x: train_X, y_: train_Y, keep_prob: 1.0}))
 
@@ -267,7 +270,7 @@ def main(argv):
 			# Evaluate on validation set
 			validation_batch_accuracies = []
 			validation_batch_losses = []
-			for validation_X, validation_Y in validation_generator.data_in_batches(examples_per_eval, batch_size):
+			for validation_X, validation_Y in validation_generator.data_in_batches(examples_per_eval, batch_size, data_aug=False, random_shuffle=True):
 				validation_batch_accuracies.append(accuracy.eval(feed_dict={
 						x: validation_X, y_: validation_Y, keep_prob: 1.0}))
 
@@ -285,71 +288,30 @@ def main(argv):
 				(train_accuracy, train_loss, validation_accuracy, validation_loss))
 			print('')
 
-			plot(train_accuracies, train_losses, validation_accuracies, validation_losses, eta_original, batch_size, beta, keep_probability)
+			plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename)
 
 
 			# Save the best model
 			if validation_accuracy > accuracy_tracker:
-
-				saver.save(sess, 'learning_rate_test'+'-'+str(eta_original)+'-'+str(batch_size)+'-'+str(beta)+'-'+str(keep_probability)+'.ckpt')
-
+				saver.save(sess, filename+'.ckpt')
 				accuracy_tracker = validation_accuracy
 
 			# Train
-			# for i in tqdm(range(batches_per_epoch)):
-			for i in range(batches_per_epoch):
+			for i in range(batches_per_iteration):
 
-				# Use a learning rate schedule for the first 100 updates
-				if update_tracker < 100:
-					eta = (1.0 - float(update_tracker)/100.0)*0.001 + (float(update_tracker)/100.0)*eta_original
-					train_X, train_Y = train_generator.next(batch_size)
+				if update_tracker < eta_schedule_length:
+					eta = (1.0 - float(update_tracker)/float(eta_schedule_length))*eta_initial + (float(update_tracker)/float(eta_schedule_length))*eta_original
+					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				else:
 					eta = eta_original
-					train_X, train_Y = train_generator.next(batch_size)
+					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
-				print(eta)
 				update_tracker += 1
 
-		# Compute total validation set error
-		validation_total_accuracies = []
-		for validation_X, validation_Y in validation_generator.data_in_batches(len(validation_generator.metadata), batch_size):
-			validation_total_accuracies.append(accuracy.eval(feed_dict={
-					x: validation_X, y_: validation_Y, keep_prob: 1.0}))
 
-		validation_accuracy = np.mean(validation_total_accuracies)
-
-		print('final validation accuracy %g' % (validation_accuracy))
-
-		# Compute total test set error
-		test_total_accuracies = []
-		for test_X, test_Y in test_generator.data_in_batches(len(test_generator.metadata), batch_size):
-			test_total_accuracies.append(accuracy.eval(feed_dict={
-					x: test_X, y_: test_Y, keep_prob: 1.0}))
-
-		test_accuracy = np.mean(test_total_accuracies)
-
-		print('final test accuracy %g' % (test_accuracy))
-
-		
-
-
-
-	plot(train_accuracies, train_losses, validation_accuracies, validation_losses, eta_original, batch_size)
-
-	# train_counts = Counter(row['original_label'] for row in train_generator.metadata)
-	# validation_counts = Counter(row['original_label'] for row in validation_generator.metadata)
-	# test_counts = Counter(row['original_label'] for row in test_generator.metadata)
-
-	# f = open('batch'+'-'+str(eta_original)+'-'+str(batch_size)+'.txt', 'w')
-	# f.write('final validation accuracy %g \n' % (validation_accuracy))
-	# f.write('test accuracy %g \n' % (test_accuracy))
-	# f.write('train counts glass %g, liquid %g \n' % (train_counts['glass'], train_counts['liquid']))
-	# f.write('validation counts glass %g, liquid %g \n' % (validation_counts['glass'], validation_counts['liquid']))
-	# f.write('test counts glass %g, liquid %g \n' % (test_counts['glass'], test_counts['liquid']))
-	# f.write('epochs = %d, eta = %g, batch_size = %g' % (epochs, eta_original, batch_size))
-	# f.close()
-
+	plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename)
+	
 # Run the program
 if __name__ == '__main__':
 	tf.app.run(main=main(sys.argv[1:]))
