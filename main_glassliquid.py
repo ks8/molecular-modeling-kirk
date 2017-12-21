@@ -22,7 +22,7 @@ def create_parser():
 
 	# Create parser and add arguments
 	parser = argparse.ArgumentParser(description='Read hyperparameter information')
-	parser.add_argument('-eta', dest='eta', default=1e-3, help='final learning rate')
+	parser.add_argument('-eta_final', dest='eta_final', default=1e-3, help='final learning rate')
 	parser.add_argument('-eta_initial', dest='eta_initial', default=1e-3, help='initial learning rate')
 	parser.add_argument('-eta_schedule_length', dest='eta_schedule_length', default=100, help='learning rate schedule length')
 	parser.add_argument('-batch_size', dest='batch_size', default=10, help='Batch size')
@@ -38,7 +38,7 @@ def convert_args(args):
 
 	# Options dictionary
 	options = {}
-	options['eta'] = args.eta
+	options['eta_final'] = args.eta_final
 	options['eta_initial'] = args.eta_initial
 	options['eta_schedule_length'] = args.eta_schedule_length
 	options['batch_size'] = args.batch_size
@@ -174,7 +174,7 @@ def main(argv):
 	iterations = int(options['iterations'])
 	batches_per_iteration = 10
 	examples_per_eval = 1000
-	eta_original = float(options['eta'])
+	eta_final = float(options['eta_final'])
 	eta_initial = float(options['eta_initial'])
 	eta_schedule_length = int(options['eta_schedule_length'])
 	beta = float(options['beta'])
@@ -242,7 +242,7 @@ def main(argv):
 		print('')
 
 		# Print hyperparameters
-		print('iterations = %d, eta = %g, batch_size = %g, beta = %g, keep_probability = %g' % (iterations, eta_original, batch_size, beta, keep_probability))
+		print('iterations = %d, eta = %g, batch_size = %g, beta = %g, keep_probability = %g' % (iterations, eta_final, batch_size, beta, keep_probability))
 		print('')
 
 		# Training
@@ -299,12 +299,12 @@ def main(argv):
 			# Train
 			for i in range(batches_per_iteration):
 
-				if update_tracker < eta_schedule_length:
-					eta = (1.0 - float(update_tracker)/float(eta_schedule_length))*eta_initial + (float(update_tracker)/float(eta_schedule_length))*eta_original
+				if validation_accuracy < 0.90:
+					eta = eta_initial
 					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				else:
-					eta = eta_original
+					eta = eta_final
 					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				update_tracker += 1
