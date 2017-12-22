@@ -1,0 +1,606 @@
+% LaTEX source code
+% Last modified November 1st, 2005
+% Steve Miller
+% note that the percent sign comments out the rest of the line
+% first, we set a document class. often use 12pt characters, though
+% sometimes people do 11 or 10. you can do report or article, both similar
+%\documentclass[12pt,letterpaper]{article}
+\documentclass[12pt,reqno]{amsart}
+\linespread{1}
+\addtolength{\textwidth}{2cm} \addtolength{\hoffset}{-1cm}
+\addtolength{\marginparwidth}{-1cm} \addtolength{\textheight}{2cm}
+\addtolength{\voffset}{-1cm}
+% below are some packages that are needed for certain symbols, graphics, colors.
+% safest to just include these.
+\usepackage{times}
+\usepackage[T1]{fontenc}
+\usepackage{mathrsfs}
+\usepackage{latexsym}
+\usepackage[dvips]{graphics}
+\usepackage{epsfig}
+\usepackage{hyperref, amsmath, amsthm, amsfonts, amscd, flafter,epsf}
+\usepackage{amsmath,amsfonts,amsthm,amssymb,amscd}
+\input amssym.def
+\input amssym.tex
+\usepackage{color}
+\usepackage{enumerate}
+\usepackage{hyperref}
+\usepackage{url}
+\usepackage{floatrow}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{capt-of}
+\usepackage{physics}
+\newcommand{\todo}[1]{\textcolor{red}{\textbf{(#1)}}}
+
+    %=======================================================
+
+    %   THIS IS WHERE YOU PUT SHORTCUT DEFINITIONS
+
+    %========================================================
+
+% Note that we use a percent sign to comment out a line
+
+% below are shortcut commands
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% below are shortcuts for equation, eqnarray,
+
+% itemize and enumerate environments
+
+\newcommand\be{\begin{equation}}
+\newcommand\ee{\end{equation}}
+\newcommand\bea{\begin{eqnarray}}
+\newcommand\eea{\end{eqnarray}}
+\newcommand\bi{\begin{itemize}}
+\newcommand\ei{\end{itemize}}
+\newcommand\ben{\begin{enumerate}}
+\newcommand\een{\end{enumerate}}
+\newcommand{\ncr}[2]{\left({#1 \atop #2}\right)}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Theorem / Lemmas et cetera
+
+\newtheorem{thm}{Theorem}[section]
+\newtheorem{conj}[thm]{Conjecture}
+\newtheorem{cor}[thm]{Corollary}
+\newtheorem{lem}[thm]{Lemma}
+\newtheorem{prop}[thm]{Proposition}
+\newtheorem{exa}[thm]{Example}
+\newtheorem{defi}[thm]{Definition}
+\newtheorem{exe}[thm]{Exercise}
+\newtheorem{rek}[thm]{Remark}
+\newtheorem{que}[thm]{Question}
+\newtheorem{prob}[thm]{Problem}
+\newtheorem{cla}[thm]{Claim}
+\newtheorem{defis}[thm]{Definitions}
+\newtheorem{res}[thm]{Result}
+\newtheorem{calc}[thm]{Calculation}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% shortcuts to environments
+
+% this allows you to do textboldface: simply type \tbf{what you want in bold}
+
+\newcommand{\tbf}[1]{\textbf{#1}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% shortcut to twocase and threecase definitions
+
+\newcommand{\twocase}[5]{#1 \begin{cases} #2 & \text{#3}\\ #4
+&\text{#5} \end{cases}   }
+\newcommand{\threecase}[7]{#1 \begin{cases} #2 &
+\text{#3}\\ #4 &\text{#5}\\ #6 &\text{#7} \end{cases}   }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%Blackboard Letters
+
+\newcommand{\R}{\ensuremath{\mathbb{R}}}
+\newcommand{\C}{\ensuremath{\mathbb{C}}}
+\newcommand{\Z}{\ensuremath{\mathbb{Z}}}
+\newcommand{\Q}{\mathbb{Q}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathbb{F}}
+\newcommand{\W}{\mathbb{W}}
+\newcommand{\Qoft}{\mathbb{Q}(t)}  %use in linux
+\newcommand{\soln}{\noindent \textbf{Solution:}\ }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Finite Fields and Groups
+
+\newcommand{\Fp}{ \F_p }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Fractions
+
+\newcommand{\foh}{\frac{1}{2}}  %onehalf
+\newcommand{\fot}{\frac{1}{3}}
+\newcommand{\fof}{\frac{1}{4}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% Legendre Symbols
+
+\newcommand{\js}[1]{ { \underline{#1} \choose p} }
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% matrix shortcuts
+
+\newcommand{\mattwo}[4]
+{\left(\begin{array}{cc}
+                        #1  & #2   \\
+                        #3 &  #4
+                          \end{array}\right) }
+\newcommand{\matthree}[9]
+{\left(\begin{array}{ccc}
+                        #1  & #2 & #3  \\
+                        #4 &  #5 & #6 \\
+                        #7 &  #8 & #9
+                          \end{array}\right) }
+\newcommand{\dettwo}[4]
+{\left|\begin{array}{cc}
+                        #1  & #2   \\
+                        #3 &  #4
+                          \end{array}\right| }
+\newcommand{\detthree}[9]
+{\left|\begin{array}{ccc}
+                        #1  & #2 & #3  \\
+                        #4 &  #5 & #6 \\
+                        #7 &  #8 & #9
+                          \end{array}\right| }
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% greek letter shortcuts
+
+\newcommand{\ga}{\alpha}                  %gives you a greek alpha
+\newcommand{\gb}{\beta}
+\newcommand{\gep}{\epsilon}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% general functions
+
+\newcommand{\notdiv}{\nmid}               % gives the not divide symbol
+\newcommand{\burl}[1]{\textcolor{blue}{\url{#1}}}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+% the following makes the numbering start with 1 in each section;
+
+% if you want the equations numbered 1 to N (without caring about
+
+% what section you are in, comment out the following line.
+
+\numberwithin{equation}{section}
+
+%\textwidth= 6in
+
+%\evensidemargin=37pt
+
+%\oddsidemargin=0pt
+
+\begin{document}
+
+
+
+\title{Machine Learning Glasses Results Log}
+\author{Kirk Swanson}
+\email{swansonk1@uchicago.edu}
+\address{Institute for Molecular Engineering, University of Chicago, 5640 S Ellis Ave, Chicago, IL 60637}
+%\keywords{path integral molecular dynamics, path integral monte carlo, metropolis algorithm}
+\date{\today}
+
+
+
+
+\maketitle
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\normalsize
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{11/26/2017}
+\begin{enumerate}
+\item Merged recent updates to GitHub
+\item Downloaded images from a while ago.  This first one is batch size 80, learning rate 0.001, beta 0.01, dropout 0.5, including the recent change that each batch is chosen from a newly randomly chuffled metadata:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{test-batch2-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 99.7635 and an optimal test accuracy of 99.7297.  I also tested this multiple times, running the SAME set of hyperparameters, to see what is going on with that weird spike.  Does it keep showing up?  What is going on?  Here are more examples, all run at the same hyperparameters as above:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{learning-rate-rep1-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 47.0608, optimal test accuracy of 47.6689, and final validation accuracy of 49.223, test accuracy of 50.0338 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{learning-rate-rep2-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 99.4595, optimal test accuracy of 99.3243, and final validation accuracy of 50.777, test accuracy of 49.9662. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{learning-rate-rep3-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 992.5, optimal test accuracy of 91.7568, and final validation accuracy of 49.223, test accuracy of 50.0338. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{learning-rate-rep4-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 99.8987, optimal test accuracy of 99.8649, and final validation accuracy of 50.777, test accuracy of 49.9662. 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{learning-rate-rep5-1e-3-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+\item This run had an optimal validation accuracy of 55.4054, optimal test accuracy of 54.223, and final validation accuracy of 49,223, test accuracy of 50.0338.
+
+\item The following are images of runs on the dataset that consists of glasses and liquids that are each 12 time steps away from the assumed glass transition temperature of 0.21.  
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-100-1e-2-5e-1}
+\caption{Batch Size = 100, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-10-1e-2-5e-1}
+\caption{Batch Size = 10, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-150-1e-2-5e-1}
+\caption{Batch Size = 150, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-15-1e-2-5e-1}
+\caption{Batch Size = 15, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-200-1e-2-5e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-20-1e-2-5e-1}
+\caption{Batch Size = 20, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-25-1e-2-5e-1}
+\caption{Batch Size = 25, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-30-1e-2-5e-1}
+\caption{Batch Size = 30, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-50-1e-2-5e-1}
+\caption{Batch Size = 50, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-4-80-1e-2-5e-1}
+\caption{Batch Size = 80, Learning Rate = 1e-4, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-100-1e-2-5e-1}
+\caption{Batch Size = 100, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-10-1e-2-5e-1}
+\caption{Batch Size = 10, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-150-1e-2-5e-1}
+\caption{Batch Size = 150, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-15-1e-2-5e-1}
+\caption{Batch Size = 15, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-1e-2-1e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-1e-2-2e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-1e-2-3e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-1e-2-4e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-1e-2-5e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-5e-2-3e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-5e-2-4e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-200-5e-2-5e-1}
+\caption{Batch Size = 200, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-20-1e-2-5e-1}
+\caption{Batch Size = 20, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-250-1e-2-5e-1}
+\caption{Batch Size = 250, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-25-1e-2-5e-1}
+\caption{Batch Size = 25, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-30-1e-2-5e-1}
+\caption{Batch Size = 30, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12-1e-3-50-1e-2-5e-1}
+\caption{Batch Size = 50, Learning Rate = 1e-3, Beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\item Visualizations.  
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_original}
+\caption{Glass original}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_1}
+\caption{Glass channel 1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_2}
+\caption{Glass channel 2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_3}
+\caption{Glass channel 3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_4}
+\caption{Glass channel 4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_5}
+\caption{Glass channel 5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{glass_channel_6}
+\caption{Glass channel 6}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_original}
+\caption{Liquid original}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_1}
+\caption{Liquid channel 1}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_2}
+\caption{Liquid channel 2}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_3}
+\caption{Liquid channel 3}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_4}
+\caption{Liquid channel 4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_5}
+\caption{Liquid channel 5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{liquid_channel_6}
+\caption{Liquid channel 6}
+\end{figure}
+
+\end{enumerate}
+
+\section{12/13/2017}
+\begin{enumerate}
+\item Updated python scripts and merged with GitHub - the recent additions include streamlining the learning rate schedule and data augmentation options.  The following is for a standard run on the original endpoint data:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{test-1e-3-1e-3-550-80-1e-2-5e-1}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-3, Schedule Length = 550 iterations, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\item I then, twice, set the final learning rate to be smaller, at 1e-4:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{test-1e-4-1e-3-550-80-1e-2-5e-1}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-3, Schedule Length = 550 iterations, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{test2-1e-4-1e-3-550-80-1e-2-5e-1}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-3, Schedule Length = 550 iterations, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\item What is going on here?  It seems as though setting the learning rate a magnitude lower really screws things up...
+\item Note: one iteration goes through 10 batches, so if the batch size is 80, then one iteration goes through 800 examples.  The training set is 70 percent of the total 20,000 images, so the training set is 14,000 images.  Thus, one epoch is 17.5 iterations, or approximately 18 iterations.  That means that 1500 iterations is about 83 epochs.  Question: how many epochs is typically needed for a binary classification problem?  And how long does this typically take?
+\item I also tested the usual hyperparameters on the original endpoint data and turned on the data augmentation, to see if there would be any issues.  I got the following training runs:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_aug}
+\caption{Initial Learning Rate = NA, Final Learning Rate = 1e-3, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_aug2}
+\caption{Initial Learning Rate = NA, Final Learning Rate = 1e-3, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_aug3}
+\caption{Initial Learning Rate = NA, Final Learning Rate = 1e-3, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_aug4}
+\caption{Initial Learning Rate = NA, Final Learning Rate = 1e-3, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_aug5}
+\caption{Initial Learning Rate = NA, Final Learning Rate = 1e-3, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\item I should double check that the dataset augmentation is actually working.  
+\item I am now going to run a series of training runs that will explore the relationship between the learning rate schedule and accuracy.  First, let's try the threshold idea.  Then, we will try the standard exponential decay idea.  Let's try the following.  When the accuracy gets to 90 percent, let's decrease the learning rate by an order of magnitude.  Let's just run that simple test, say, 8 times, and see what happens!
+
+\item Initial learning rate = , Final learning rate = ,   
+
+
+
+
+
+\end{enumerate}
+
+
+
+
+\begin{thebibliography}{Al-F11}
+\bibitem[R]{R}
+D. Reid, I. Lyubimov, M. D. Ediger, J. J. de Pablo, \textit{Age and structure of a model vapour-deposited glass}, Nature Communications, 2016. 
+
+\bibitem[QM]{QM}
+ J. Gilmer, S. Schoenholz, P. Riley, O. Vinyals, and G. Dahl, \textit{Neural Message Passing for Quantum Chemistry}, www.arxiv.org, 2017.  
+
+\bibitem[GC]{GC}
+S. Kearnes, K. McCloskey, M. Berndl, V. Pande, and P. Riley, \textit{Molecular Graph Convolutions: Moving Beyond Fingerprints}, www.arxiv.org, 2017.
+
+\bibitem[P]{P}
+Q. Wei, R. G. Melko, and Jeff Z. Y. Chen, \textit{Identifying polymer states by machine learning}, www.arxiv.org, 2017.  
+
+\end{thebibliography}
+\end{document}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
