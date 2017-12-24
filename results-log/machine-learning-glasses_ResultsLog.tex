@@ -561,13 +561,52 @@
 \end{figure}
 
 \item I should double check that the dataset augmentation is actually working.  
+\end{enumerate}
+\section{12/22/2017}
+\begin{enumerate}
 \item I am now going to run a series of training runs that will explore the relationship between the learning rate schedule and accuracy.  First, let's try the threshold idea.  Then, we will try the standard exponential decay idea.  Let's try the following.  When the accuracy gets to 90 percent, let's decrease the learning rate by an order of magnitude.  Let's just run that simple test, say, 8 times, and see what happens!
 
 \item Initial learning rate = , Final learning rate = ,   
+\end{enumerate}
+\section{12/24/2017}
+\begin{enumerate}
+\item We ran a series of training runs that used a learning rate threshold.  The learning rate starts at the initial learning rate.  The learning rate changes to the final learning rate whenever the validation accuracy is above 90 percent.  This allows the learning rate to go back to the initial learning rate if the accuracy drops below 90 percent.  Here are plots showing six tests.  These plots demonstrate that the sharp drops in accuracy were, indeed, the result of a learning rate that was too large towards the end of training, since there are no sharp drops in accuracy here:
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-4-1}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-4-2}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-4-3}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-5-1}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-5-2}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{threshold-test-1e-3-1e-5-3}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
 
 \end{enumerate}
 
