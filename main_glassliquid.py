@@ -176,7 +176,7 @@ def main(argv):
 	examples_per_eval = 1000
 	eta_final = float(options['eta_final'])
 	eta_initial = float(options['eta_initial'])
-	eta_threshold = int(options['eta_threshold'])
+	eta_threshold = float(options['eta_threshold'])
 	beta = float(options['beta'])
 	keep_probability = float(options['keep_probability'])
 	filename=str(options['filename'])
