@@ -310,6 +310,9 @@ def main(argv):
 				update_tracker += 1
 
 
+	# Save the final model for restart
+	saver.save(sess, filename+'final_model'+'.ckpt')
+	
 	plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename)
 	
 # Run the program
