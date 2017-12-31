@@ -309,9 +309,9 @@ def main(argv):
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				update_tracker += 1
 
-
-	# Save the final model for restart
-	saver.save(sess, filename+'final_model'+'.ckpt')
+		# Save the final model for restart
+		saver.save(sess, filename+'final_model'+'.ckpt')
+	
 	
 	plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename)
 	
