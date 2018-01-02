@@ -665,6 +665,12 @@
 
 \end{enumerate}
 
+\subsection{1/1/2018}
+\begin{enumerate}
+\item Added main\_glassliquid\_restart.py, a file that can run training starting from a previous saved model.  Tested it.  Now, let's try to train again on the dataset that consists of glasses and liquids that are each 12 time steps away from the assumed glass transition temperature of 0.21.  Previously, the best parameters were batch size 200, learning rate 1e-3, beta 0.01, dropout 0.4.  Now, we are going to do a series of simulations using the same parameters, except, first, we are going to include dataset augmentation, and second, we are going to run the simluation at least twice as long.  Then, once we get a sense for how these train, we will add in a learning rate threshold step, or even multiple threshold steps if necessary!     
+
+\end{enumerate}
+
 
 
 \begin{thebibliography}{Al-F11}
