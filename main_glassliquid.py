@@ -30,6 +30,7 @@ def create_parser():
 	parser.add_argument('-beta', dest='beta', default=0.01, help='L2 regularization parameter')
 	parser.add_argument('-keep_probability', dest='keep_probability', default=0.5, help='Dropout keep probability')
 	parser.add_argument('-filename', dest='filename', default='test', help='Filename for plots and saved model files')
+	parser.add_argument('-training_data_aug', dest='training_data_aug', default=False, help='Boolean for training dataset augmentation')
 
 	return parser
 
@@ -46,8 +47,18 @@ def convert_args(args):
 	options['beta'] = args.beta
 	options['keep_probability'] = args.keep_probability
 	options['filename'] = args.filename
+	options['training_data_aug'] = args.training_data_aug
 
 	return options
+
+""" Function to convert a string to a boolean for the argparse options"""
+def str2bool(string):
+	if string.lower() == 'true':
+		return True
+	elif string.lower() == 'false':
+		return False
+	else:
+		raise argparse.ArgumentTypeError('Boolean value expected.')
 
 """ Functions to convert the labels to one hot """
 def get_unique_labels(metadata):
@@ -180,6 +191,7 @@ def main(argv):
 	beta = float(options['beta'])
 	keep_probability = float(options['keep_probability'])
 	filename=str(options['filename'])
+	training_data_aug = str2bool(options['training_data_aug'])
 
 	# Input data
 	x = tf.placeholder(tf.float32, [None, im_size, im_size, 3])
@@ -216,9 +228,6 @@ def main(argv):
 
 	# Accuracy tracker
 	accuracy_tracker = 0.0
-
-	# Update number tracker
-	update_tracker = 0
 
 	# Run the network
 	with tf.Session(config=config) as sess:
@@ -301,13 +310,13 @@ def main(argv):
 
 				if validation_accuracy < eta_threshold:
 					eta = eta_initial
-					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
+					train_X, train_Y = train_generator.next(batch_size, data_aug=training_data_aug, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				else:
 					eta = eta_final
-					train_X, train_Y = train_generator.next(batch_size, data_aug=False, random_shuffle=True)
+					train_X, train_Y = train_generator.next(batch_size, data_aug=training_data_aug, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
-				update_tracker += 1
+				
 
 		# Save the final model for restart
 		saver.save(sess, filename+'final_model'+'.ckpt')
