@@ -31,6 +31,8 @@ def create_parser():
 	parser.add_argument('-keep_probability', dest='keep_probability', default=0.5, help='Dropout keep probability')
 	parser.add_argument('-filename', dest='filename', default='test', help='Filename for plots and saved model files')
 	parser.add_argument('-training_data_aug', dest='training_data_aug', default=False, help='Boolean for training dataset augmentation')
+	parser.add_argument('-restart', dest='restart', default=False, help='Boolean for using a restart file')
+	parser.add_argument('-restart_file', dest='restart_file', default="test.ckpt", help='Filename for previous saved model - just use <filename>.ckpt')
 
 	return parser
 
@@ -48,6 +50,8 @@ def convert_args(args):
 	options['keep_probability'] = args.keep_probability
 	options['filename'] = args.filename
 	options['training_data_aug'] = args.training_data_aug
+	options['restart'] = args.restart
+	options['restart_file'] = args.restart_file
 
 	return options
 
@@ -190,8 +194,10 @@ def main(argv):
 	eta_threshold = float(options['eta_threshold'])
 	beta = float(options['beta'])
 	keep_probability = float(options['keep_probability'])
-	filename=str(options['filename'])
+	filename = str(options['filename'])
 	training_data_aug = str2bool(options['training_data_aug'])
+	restart = str2bool(options['restart'])
+	restart_filename = str(options['restart_file'])
 
 	# Input data
 	x = tf.placeholder(tf.float32, [None, im_size, im_size, 3])
@@ -234,6 +240,10 @@ def main(argv):
 
 		# Initialize variables
 		sess.run(tf.global_variables_initializer())
+
+		# Restore a previous model
+		if restart:
+			saver.restore(sess, restart_filename)
 
 		# Print class balance
 		train_counts = Counter(row['original_label'] for row in train_generator.metadata)
@@ -302,8 +312,11 @@ def main(argv):
 
 			# Save the best model
 			if validation_accuracy > accuracy_tracker:
-				saver.save(sess, filename+'.ckpt')
+				saver.save(sess, filename+'_best_model'+'.ckpt')
 				accuracy_tracker = validation_accuracy
+
+			# Save the current model for restart
+			saver.save(sess, filename+'_current_model'+'.ckpt')
 
 			# Train
 			for i in range(batches_per_iteration):
@@ -317,10 +330,6 @@ def main(argv):
 					train_X, train_Y = train_generator.next(batch_size, data_aug=training_data_aug, random_shuffle=True)
 					train_step.run(feed_dict={x: train_X, y_: train_Y, keep_prob: keep_probability, learning_rate: eta})
 				
-
-		# Save the final model for restart
-		saver.save(sess, filename+'final_model'+'.ckpt')
-	
 	
 	plot(train_accuracies, train_losses, validation_accuracies, validation_losses, filename)
 	
