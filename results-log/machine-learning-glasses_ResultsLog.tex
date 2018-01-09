@@ -677,6 +677,51 @@
 
 \end{enumerate}
 
+\section{1/9/2018}
+\begin{enumerate}
+\item Collected data from the above-mentioned simulations.  The training curves are as follows:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version1_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version2_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version3_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version4_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version5_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data12_version6_step0}
+\caption{Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Schedule Length = NA, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5}
+\end{figure}
+
+\item The problem is that my allotted time (36 hours) was not enough, so the simulations terminated early.  My program, however, was only set to save the current model at the end of the iterations.  So, the current model was not saved, only the best model was saved.  So, I went back into the main code and changed it so that the current model is updated and saved at every iteration, in addition to the best model being updated when necessary.  I also included restart capability into the main code (using parsing options), so that there is not a separate restart file.  
+
+\item I am now running 7 new simulations.  The first is just a re-do of version1 step 0.  The others take version5 step 0 and start from the saved best model as a starting point, using the new restart capabilities of the main code.  The first two simulations from this starting point (version5 step2 and version5 step2 trial2) use the original parameters.  The next two (version5 step2 trial3 and version5 step2 trial4 use eta\_initial=1e-4 and eta\_final=1e-5), and the final two (version5 step2 trial5 and version5 step2 trial6) use eta\_intial=1e-5 and eta\_final=1e-6.  We will see how these 7 new runs turn out.  
+\end{enumerate}
+
 
 
 \begin{thebibliography}{Al-F11}
