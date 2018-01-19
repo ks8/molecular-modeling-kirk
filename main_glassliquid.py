@@ -24,7 +24,7 @@ def create_parser():
 	parser = argparse.ArgumentParser(description='Read hyperparameter information')
 	parser.add_argument('-eta_final', dest='eta_final', default=1e-3, help='final learning rate')
 	parser.add_argument('-eta_initial', dest='eta_initial', default=1e-3, help='initial learning rate')
-	parser.add_argument('-eta_threshold', dest='eta_threshold', default=100, help='learning rate schedule accuracy threshold')
+	parser.add_argument('-eta_threshold', dest='eta_threshold', default=1.00, help='learning rate schedule accuracy threshold')
 	parser.add_argument('-batch_size', dest='batch_size', default=10, help='Batch size')
 	parser.add_argument('-iterations', dest='iterations', default=100, help='Number of iterations to run')
 	parser.add_argument('-beta', dest='beta', default=0.01, help='L2 regularization parameter')
@@ -33,6 +33,7 @@ def create_parser():
 	parser.add_argument('-training_data_aug', dest='training_data_aug', default=False, help='Boolean for training dataset augmentation')
 	parser.add_argument('-restart', dest='restart', default=False, help='Boolean for using a restart file')
 	parser.add_argument('-restart_file', dest='restart_file', default="test.ckpt", help='Filename for previous saved model - just use <filename>.ckpt')
+	parser.add_argument('-evaluation', dest='evaluation', default=False, help='Boolean for evaluating a model')
 
 	return parser
 
@@ -52,6 +53,7 @@ def convert_args(args):
 	options['training_data_aug'] = args.training_data_aug
 	options['restart'] = args.restart
 	options['restart_file'] = args.restart_file
+	options['evaluation'] = args.evaluation
 
 	return options
 
@@ -198,6 +200,7 @@ def main(argv):
 	training_data_aug = str2bool(options['training_data_aug'])
 	restart = str2bool(options['restart'])
 	restart_filename = str(options['restart_file'])
+	evaluation = str2bool(options['evaluation'])
 
 	# Input data
 	x = tf.placeholder(tf.float32, [None, im_size, im_size, 3])
@@ -244,6 +247,32 @@ def main(argv):
 		# Restore a previous model
 		if restart:
 			saver.restore(sess, restart_filename)
+
+		# Evaluate model if desired and then quit the program
+		if evaluation:
+
+			# Compute total validation set error
+			validation_total_accuracies = []
+			for validation_X, validation_Y in validation_generator.data_in_batches(len(validation_generator.metadata), batch_size):
+				validation_total_accuracies.append(accuracy.eval(feed_dict={
+						x: validation_X, y_: validation_Y, keep_prob: 1.0}))
+
+			validation_accuracy = np.mean(validation_total_accuracies)
+
+			print('final validation accuracy %g' % (validation_accuracy))
+
+			# Compute total test set error
+			test_total_accuracies = []
+			for test_X, test_Y in test_generator.data_in_batches(len(test_generator.metadata), batch_size):
+				test_total_accuracies.append(accuracy.eval(feed_dict={
+						x: test_X, y_: test_Y, keep_prob: 1.0}))
+
+			test_accuracy = np.mean(test_total_accuracies)
+
+			print('final test accuracy %g' % (test_accuracy))
+
+			sys.exit()
+
 
 		# Print class balance
 		train_counts = Counter(row['original_label'] for row in train_generator.metadata)
