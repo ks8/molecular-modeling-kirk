@@ -1082,6 +1082,95 @@
 
 
 
+\subsection{2/2/2018}
+\begin{enumerate}
+\item Collected results from training runs on the data\_liquid25 data.  Here they are:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version1_step1}
+\caption{Version 1 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 10, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version2_step1}
+\caption{Version 2 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 10, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version3_step1}
+\caption{Version 3 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 20, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version4_step1}
+\caption{Version 4 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 20, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version5_step1}
+\caption{Version 5 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 30, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version6_step1}
+\caption{Version 6 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 30, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version7_step1}
+\caption{Version 7 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 50, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version8_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 50, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version9_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version10_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version11_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 100, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid25_version12_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 100, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\item Version 6 Step 1 has a final validation accuracy of 99.7\% and test accuracy of 99.6667\%.  
+\item Saving Version 6 model.  
+\item Just ran the saved data\_liquid5\_version7\_step1\_best\_model.ckpt on the metadata from data\_liquid25.  It had a final validation accuracy of 99.8557\% and final test accuracy of 99.6333\%.  Wow!  So how about for the time being, we just keep running this model on closer and closer liquid data sets to see how well it does...
+\item Changing metadata to be from data\_liquid35.  
+\item Running the data\_liquid5 model as above...this time gets 99.5667\% validation and 99.7333\% test.  
+\item Creating data now for data\_liquid45 and data\_liquid60.  
+\item Ok, now changed the metadata to be from data\_12steps.  This yields a validation accuracy of 48.2667\% and test accuracy of 48.5\%.  Interesting...so where does it break down?  Let's try to find this. 
+\item Removing all other models.  
+
+\end{enumerate}
+
+
+
 
 
 
