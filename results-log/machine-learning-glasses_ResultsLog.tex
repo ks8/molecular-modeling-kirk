@@ -1196,6 +1196,169 @@
 \item Currently running the (x, y, z) coords program on Midway to generate these files for the endpoints of the simulation (i.e. at 20,000,000 and 100,000) for Shubhendu.  
 \end{enumerate}
 
+\subsection{2/22/2018}
+\begin{enumerate}
+\item Here is a plot showing progress to date:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{progress-plot}
+\end{figure}
+
+\item What I sent to Josh and Shubhendu in email:
+I have a few new results.  Attached to this email is a plot I put together a few minutes ago.  The blue curve is the value of the inherent structure energy as a function of temperature (values on left axis) taken from one example simulation.  The vertical blue line is the assumed glass transition temperature for the 2D Kobb-Andersen glass, which is at 0.21 (from Dan's vapor-deposited paper).  The dots show various machine learning accuracies I have achieved (values on the right axis).  I'll explain the red dots first, then the green dots.  
+
+Red dots:
+I created a data set where the glass images were derived from timestep 20,000,000, or temperature = 0.05 and the liquid images were derived from timestep 500,000, or temperature = 1.95125.  Temperature = 0.05 is the farthest we can go into the glass regime with our data.  I then trained the CNN on this data set and achieved a test accuracy of 99.8\%.  I saved this model.  Then, I used this model to predict whether images were glass or liquid on seven other data sets.  Each of these data sets uses the SAME glass images, i.e. images from temperature = 0.05, but uses liquid images from temperatures that are increasingly close to the glass transition.  The results are shown as red dots.  So, the red dot at temperature = 0.635 and accuracy = 62.3961\%, for example, means that this model achieves approximately 62.3961\% accuracy when tested on liquid images derived from temperature = 0.635.    
+
+Green dots:
+These dots represent CNNs that have been trained exactly at that data point.  So, the green dot at temperature = 0.33275, for example, represents the test accuracy of a CNN that has been trained on liquid images taken from that exact temperature, 0.33275, with glass images again taken from temperature = 0.05.  
+
+It looks nice, but what if we're just learning a much more complicated way of calculating the inherent structure energy?
+
+\item After speaking to Josh, these are the steps we decided that we need to take, using CNNs:
+
+\item Classify glass vs liquid:
+\subitem Improve model accuracy using data across the liquid regime
+\subitem Calculate $T_g$ rigorously
+\subitem Calculate the potential energy instead of the inherent structure energy
+\subitem NEW classify between two liquids? (Added 3/6/2018)
+\subitem Generate supercooled liquid data at the same energy as the glass
+\subitem Generate artificial 5-fold patterns
+\subitem Generate 3D data for classification
+\item Classify liquid-cooled versus vapor-deposited glasses:
+\subitem Generate data
+\item Other tasks?
+\subitem Classify low density vs high density water
+
+\item We also have an answer as to why the CNN learning to classify liquid versus glass, irrespective of what it is learning (i.e. potential energy, inherent energy, geometry, or anything else).  From the viewpoint of the CNN, we know nothing about the material that is being given to the CNN other than the geometric configuration of particles.  We don't know whether interactions are pairwise or more complicated, we don't know how the material operates, other than that we have been able to train the CNN on labelled materials, where the labelling could be based on some macroscopic rather than microscopic property.  And yet, the CNN is still able to take just this raw structure information, no dynamics, and still tell the difference between a glass and a liquid.  So it is able to classify these materials with high accuracy based on nothing but structural atomic configurations.  This is interesting.  
+
+\item So, based on these above steps, I will first start by running more training to improve green dot accuracy.  
+
+
+\end{enumerate}
+
+\subsection{2/27/2018}
+\begin{enumerate}
+\item Logging results now that should have been logged a while ago.  This is the training results for data\_liquid140.  
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version1_step1}
+\caption{Version 1 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 10, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version2_step1}
+\caption{Version 2 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 10, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version3_step1}
+\caption{Version 3 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 20, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version4_step1}
+\caption{Version 4 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 20, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version5_step1}
+\caption{Version 5 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 30, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version6_step1}
+\caption{Version 6 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 30, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version7_step1}
+\caption{Version 7 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 50, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version8_step1}
+\caption{Version 8 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 50, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version9_step1}
+\caption{Version 9 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version10_step1}
+\caption{Version 10 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 80, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version11_step1}
+\caption{Version 11 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 100, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version12_step1}
+\caption{Version 12 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 100, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version13_step1}
+\caption{Version 13 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 130, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{data_liquid140_version14_step1}
+\caption{Version 14 step 1: Initial Learning Rate = 1e-3, Final Learning Rate = 1e-4, Eta threshold = 0.90, Batch Size = 130, L2 beta = 0.01, Dropout = 0.5, data aug = true}
+\end{figure}
+
+\item Version 9 Step 1 has a final validation accuracy of 96.2847\% and test accuracy of 96.3194\%.  
+
+\item Saving Version 9 Step 1 model.  Deleting other information.
+
+\item Now I want to find the true average glass transition temperature for the simulation data that we have.  What I will do is construct an average cooling.dat plot, i.e. a plot that averges the data from all 10,000 cooling.dat files that we have.  Then, I will estimate by eye (or using some slightly more quantitative method for sake of argument) what the true average glass transition temperature is.  We anticipate that it is higher than 0.21.  
+
+\end{enumerate}
+
+\subsection{3/6/2018}
+\begin{enumerate}
+\item Wrote a program called plot\_average\_cooling data, which I moved to the 2017/N2e7 directory.  It collects the data from all 10,000 cooling.dat files and averages them across each temperature, so that we obtain an average cooling curve that is representative of the simulations:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data}
+\caption{Averaged cooling.dat data}
+\end{figure}
+
+\item Estimated the kink in inherent structure energy by finding the intersection of two lines, using points (0.05, -3.9033) and (0.245, -3.902) for the glass data and points (0.44, -3.8876) and (0.557, -3.8654) for the liquid regime.  The result is a glass transition at around 0.37.  Removing the data\_12steps result, as this is actually stepping over the new glass transition, here is a new plot of our results: 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{accuracies_revised}
+\caption{Updated results plot}
+\end{figure}
+
+\item Switching to data from data\_liquid155, which corresponds to T = 0.479.
+\item Now running the same versions as before.  
+
+\item PROBLEM: How is this any different from distinguishing between two liquids at different energies/temperatures?  SO we should try to classify between two liquids!!!  Added to the to do list above.  
+
+\end{enumerate}
+
 
 
 
