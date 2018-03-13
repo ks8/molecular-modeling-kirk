@@ -1223,6 +1223,7 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \subitem Calculate $T_g$ rigorously
 \subitem Calculate the potential energy instead of the inherent structure energy
 \subitem NEW classify between two liquids? (Added 3/6/2018)
+\item NEW idea: identify the phase transition temperature by stepping across into the glass regime until the classification accuracy gets really low. (Added 3/8/2018)  
 \subitem Generate supercooled liquid data at the same energy as the glass
 \subitem Generate artificial 5-fold patterns
 \subitem Generate 3D data for classification
@@ -1364,6 +1365,44 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \item Read sections of papers (now on Box) on MPNN, meeting with Shubhendu tomorrow.
 \item Still running training on 155.
 \item Looked into simulating new liquids that will be at the same inherent structure energy as the glass, but ran into issues with the batch scripts as written - emailed Josh for assistance.
+\end{enumerate}
+
+\subsection{3/8/2017}
+\begin{enumerate}
+\item New idea: identify the phase transition temperature by stepping across into the glass regime until the classification accuracy gets really low.  
+\item Reading https://arxiv.org/pdf/1802.09876.pdf.  Suggests that networks with one layer are not only sufficient, but more interpretable.  
+\item Analysis of activation of neurons.  Previously, for Ising model, only 1 layer with 3 neurons needed.  Plotting weight matrices of each neuron.  Look at activations as a function of five-fold symmetry??
+\end{enumerate}
+
+\subsection{3/9/2018}
+\begin{enumerate}
+\item We will be implementing MPNN using: https://github.com/priba/nmp\_qc
+\item First instruction is to install requirements using pip install -r requirements.txt
+\item On Midway 2, /home/swansonk1 directory, error in installing torch: "PyTorch does not currently provide packages for PyPI"
+\item For the time being, I will try this on my laptop instead.  Actually, my desktop, which has cuda installed.   
+\item Again, pip install -r requirements.txt failed, so for torch, i.e. PyTorch, I used the command conda install pytorch torchvision -c pytorch from pytorch.org. 
+\item Successfully installed all packages in the requirements.txt file.  
+\item Downloaded the qm9 dataset.  
+\item Following Sec. 6 on https://arxiv.org/pdf/1704.01212.pdf, the input feature for our particles will be a one-hot encoding of either particle A or particle B.  The adjacency matrix will be a raw distance feature matrix, where the entries are one-dimensional and indicate the euclidean distance between the pair of atoms.  
+\item Tried running python main.py, but saying no module rdkit.
+\item So, went to http://www.rdkit.org/docs/Install.html and conda installed.  Now I can create an environment as described.  However, torch no longer works inside the environment.  Need to investigate how environments work, then.  
+\item Opened the rdkit environment.  Then re-installed PyTorch as above.
+\item No module named networkx.  So, pip install networkx within the rdkit environment.  Same thing for joblib and tensorboard\_logger. 
+\item Tried running main.py.  Got error, 'Graph' method has no attribute 'nodes\_iter'.  Found this solution: https://stackoverflow.com/questions/33734836/graph-object-has-no-attribute-nodes-iter-in-networkx-module-python.  Trying it now by replacing with nodes() in datasets/utils.py, specifically on line 28 in the qm9\_nodes function.        
+\item Also removing edges\_iter on line 54.  Issue seems to be that the new version of networkx has mismatches.  
+\item Having some more issues with GPU compatibility.  PyTorch says my GPU is too old.  Also, there are more inscruitable errors.  So, I am going to uninstall networkx and install the version that should be compatible with this model, networkx version1.11.  Used pip install networkx==1.11. 
+\item New error with .expand in line 174 of m\_mpnn.  Stack suggests that this has to do with bug in new version of PyTorch: https://github.com/pytorch/pytorch/issues/2491.  So, like networkx, I am going to find the versin of PyTorch that was latest when the last commit for this program was made. 
+\item Found that the most recent version of PyTorch prior to the last commit on MPNN May 29, 2017, was the version v0.1.12: https://github.com/pytorch/pytorch/releases, on May 2, 2017.  So, I am installing this version using conda install pytorch=0.1.12 -c soumith.  This lets me download without cuda: http://pytorch.org/previous-versions/.  Hopefully this will get rid of the GPU problem?  If not, we'll turn to Midway.  
+\item Ok, this works!  I was just able to run, in the demos folder, demo\_qm9\_mpnn.py.  Now, I am going to go through this and try to understand what's going on.  If necessary, I will add comments to this code file.  
+\item The data is transformed into special data objects via the Qm9 class in the datasets folder.  Each object of this class has four main attributes: the graph, the nodes, the edges, and the targets.  The graph is the adjacency matrix that describes connections between atoms in the molecule.  It is real symmetric and is a numpy matrix.  The nodes are given as a list of features for each particle.  The edges are described by a dictionary, where (1, 2): [distance, one-hot enconding of bonding] is the format.  Finally, the target properties are given as a list as well.    
+\item We would probably choose our adjacency graph to take into account only a certain number of nearest neighbors as "bonded."  Then, we would just need to make sure that the graph is \textbf{connected}.  That is the only requirement of the scheme, which can then later be optimized.  
+\end{enumerate}
+
+\subsection{3/13/2018}
+\begin{enumerate}
+\item Modified the coords\_config.py file so that it outputs atom type, x-coordinate, and y-coordinate insetad of x, y, z.  
+\item Produced a sample file from the file N2e7/0 at time 100,000
+\item Wrote a script adjacency\_matrix.py to compute the adjacency graph and relevant information for MPNN input.  It works generally, but the loops appear to be inefficient.  Next time, I will have to look into using matrices, as well as ensuring that the matrix is \textbf{connected}.  
 \end{enumerate}
 
 

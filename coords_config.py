@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# File to construct an adjacency matrix for one specific timestep of one specific simulation trajectory.  
 
 import pdb
 import numpy as np
@@ -68,7 +69,7 @@ class Molecule:
             if targettimestep == self.timestep:
                 out = open(outputfile, 'w')
                 for i in range(self.natoms):
-                    out.write(str(self.x[i][0]) + '   ' + str(self.x[i][1]) + '   ' + str(self.x[i][2]))
+                    out.write(str(self.atom_types[i]) + '   ' + str(self.x[i][0]) + '   ' + str(self.x[i][1]))
                     out.write('\n')
 
                 found_flag = True
@@ -79,47 +80,6 @@ class Molecule:
     if found_flag == False:
         print "Error! Timestep = %d not found in %s" % (targettimestep,fnme)
         exit(1)
-
-  # def plot_config(self,figname,figsize=250,trimfrac=0.1,color1='orange',color2='blue'):
-
-    # frac = trimfrac #fraction to trim
-    # #figsize=250 # final figure size (in pixels)
-
-    # dpi=100     # dpi of images
-
-    # figsizeextra = round_up_to_even(figsize*(1+frac))
-    # figsizeextra_inch = figsizeextra / dpi
-
-    # fig = plt.figure(figsize=(figsizeextra_inch,figsizeextra_inch),dpi=dpi,frameon=False)
-
-    # axisrange = np.array([0,0,1,1])
-
-    # fig.add_axes(axisrange)
-    # sel = self.atom_types == 1
-    # x,y = self.x[sel,0],self.x[sel,1]
-    # plt.scatter(x,y,s=1,color=color1)
-    # sel = self.atom_types == 2
-    # x,y = self.x[sel,0], self.x[sel,1]
-    # plt.scatter(x,y,s=1,color=color2)
-
-    # plt.axis('equal')
-
-    # plt.savefig('tmp.png')
-
-    # img = PIL.Image.open("tmp.png")
-    # #os.remove("tmp.png")
-
-    # center= figsizeextra/2.0
-    # lo = int(center-0.5*figsize)
-    # hi = int(center+0.5*figsize)
-    # #lo = int(0.5*frac*figsizeextra)
-    # #hi = figsize+lo
-    # area = (lo,lo,hi,hi)
-    # cropped_img = img.crop(area)
-    # cropped_img.save(figname)
-
-
-
 
 
 def main():
