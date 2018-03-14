@@ -59,6 +59,9 @@ def process_data(files, options):
 	# Dictionary to hold all graph connected pairwise distances
 	graph_distances = dict()
 
+	# List to hold atom features
+	features = list()
+
 	# Compute all pairwise distances
 	for i in range(len(data_contents)):
 		print(i)
@@ -78,10 +81,28 @@ def process_data(files, options):
 		sorted_particle_distances = sorted(particle_distances.items(), key=operator.itemgetter(1))
 		for k in range(num_neighbors):
 			if not (((sorted_particle_distances[k][0][0], sorted_particle_distances[k][0][1]) in graph_distances) or (((sorted_particle_distances[k][0][1], sorted_particle_distances[k][0][0]) in graph_distances))):
-				graph_distances[sorted_particle_distances[k][0]] = sorted_particle_distances[k][1]
+				graph_distances[sorted_particle_distances[k][0]] = [sorted_particle_distances[k][1], 1, 0, 0, 0]
 				adj_matrix[sorted_particle_distances[k][0][0], sorted_particle_distances[k][0][1]] = 1
 				adj_matrix[sorted_particle_distances[k][0][1], sorted_particle_distances[k][0][0]] = 1
 
+	# Compute the target property
+	if 'glass' in files['datafile']:
+		target = np.asarray([1.0, 0.0])
+	else:
+		target = np.asarray([0.0, 1,0])
+
+	# Compute the atom features
+	for i in range(len(data_contents)):
+		features.append([float(data_contents[i].split()[0])])
+
+	
+
+
+	print(adj_matrix, features, graph_distances, target)
+	
+	
+
+	
 
 
 def main(argv):
