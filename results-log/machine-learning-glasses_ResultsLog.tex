@@ -1503,6 +1503,19 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \end{enumerate}
 
 
+\subsection{3/21/2018}
+
+\begin{enumerate}
+\item The functions that manipulate graph data in demo\_qm9\_mpnn.py, which is the demo I am currently working off of, use classes and objects.  So, I wrote graph\_reader\_class.py based on graph\_reader.py, which defines a GlassyData class that can be used to construct the graph information (adjacency matrix etc.) for a text file with glass/liquid coordinate information.  
+\item I saved this file on the workstation in the nmp\_qc folder.  I then added a line in demo\_qm9\_mpnn.py that says from graph\_reader\_class import GlassyData.  
+\item I saved a single file example in a folder called glass, within the data folder, whose filename is glass.00000.txt.  
+\item I then used train\_ids = [files[i] for i in idx] and data\_train = GlassyData(root, train\_ids, 7) to try printing data\_train[0][0][0] etc..
+\item In order for this to work, I had to pip install sklearn within the rdkit environment.
+\item Then, it worked! 
+\item Next, I need to move the data to the local machine, then write a demo script that is strictly for glass/liquid data.  
+\end{enumerate}
+
+
 
 
 \begin{thebibliography}{Al-F11}
