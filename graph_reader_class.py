@@ -11,9 +11,9 @@ import time
 import copy, os
 from ast import literal_eval as make_tuple
 import json
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
+# import matplotlib
+# matplotlib.use('Agg')
+# import matplotlib.pyplot as plt
 import random
 import math
 import operator
@@ -25,10 +25,10 @@ from sklearn.metrics.pairwise import euclidean_distances
 class GlassyData():
 
 	# Constructor
-	def __init__(self, root_path, ids, num_neighbors, e_representation = 'raw_distance'):
+	def __init__(self, root_path, metadata, num_neighbors, e_representation = 'raw_distance'):
 
 		self.root = root_path
-		self.ids = ids
+		self.metadata = metadata
 		self.num_neighbors = num_neighbors
 		self.e_representation = e_representation
 
@@ -36,7 +36,7 @@ class GlassyData():
 	def __getitem__(self, index):
 
 		# Load data
-		data = np.loadtxt(os.path.join(self.root, self.ids[index]))
+		data = np.loadtxt(os.path.join(self.root, self.metadata[index]))
 
 		# Compute all pairwise distances
 		distances = euclidean_distances(data[:, 1:3], data[:, 1:3])
@@ -62,10 +62,10 @@ class GlassyData():
 		features = list()
 	
 		# Compute the target property
-		if 'glass' in self.ids[index]:
+		if 'glass' in self.metadata[index]:
 			target = np.asarray([1.0, 0.0])
 		else:
-			target = np.asarray([0.0, 1,0])
+			target = np.asarray([0.0, 1.0])
 
 		# Compute the atom features
 		for i in range(data.shape[0]):
@@ -74,6 +74,11 @@ class GlassyData():
 
 		# Return adjacency matrix, feature list, distances dictionary, and target list
 		return (adj_matrix, features, graph_distances), target
+
+	# Length computation
+	def __len__(self):
+
+		return len(self.metadata)
 
 				
 
