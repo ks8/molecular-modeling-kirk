@@ -152,20 +152,20 @@ def main():
                                               batch_size=args.batch_size, collate_fn=datasets.utils.collate_g,
                                               num_workers=args.prefetch, pin_memory=True)
 
-#     print('\tCreate model')
-#     model = MPNN([len(h_t[0]), len(list(e.values())[0])], 73, 15, 2, len(l), type='regression')
+    print('\tCreate model')
+    model = MPNN([len(h_t[0]), len(list(e.values())[0])], 10, 5, 2, len(l), type='classification')
 
-#     print('Optimizer')
-#     optimizer = optim.Adam(model.parameters(), lr=args.lr)
+    print('Optimizer')
+    optimizer = optim.Adam(model.parameters(), lr=args.lr)
 
-#     criterion = nn.MSELoss()
-#     # evaluation = nn.L1Loss()
-#     evaluation = lambda output, target: torch.mean(torch.abs(output - target) / torch.abs(target))
+    criterion = nn.MSELoss()
+    # evaluation = nn.L1Loss()
+    evaluation = lambda output, target: torch.mean(torch.abs(output - target) / torch.abs(target))
 
-#     print('Logger')
-#     logger = Logger(args.logPath)
+    print('Logger')
+    logger = Logger(args.logPath)
 
-#     lr_step = (args.lr-args.lr*args.lr_decay)/(args.epochs*args.schedule[1] - args.epochs*args.schedule[0])
+    lr_step = (args.lr-args.lr*args.lr_decay)/(args.epochs*args.schedule[1] - args.epochs*args.schedule[0])
 
 #     # get the best checkpoint if available without training
 #     if args.resume:
@@ -184,11 +184,11 @@ def main():
 #         else:
 #             print("=> no best model found at '{}'".format(best_model_file))
 
-#     print('Check cuda')
-#     if args.cuda:
-#         print('\t* Cuda')
-#         model = model.cuda()
-#         criterion = criterion.cuda()
+    print('Check cuda')
+    if args.cuda:
+        print('\t* Cuda')
+        model = model.cuda()
+        criterion = criterion.cuda()
 
 #     # Epoch for loop
 #     for epoch in range(0, args.epochs):
@@ -235,22 +235,22 @@ def main():
 #     validate(test_loader, model, criterion, evaluation)
 
 
-# def train(train_loader, model, criterion, optimizer, epoch, evaluation, logger):
-#     batch_time = AverageMeter()
-#     data_time = AverageMeter()
-#     losses = AverageMeter()
-#     error_ratio = AverageMeter()
+def train(train_loader, model, criterion, optimizer, epoch, evaluation, logger):
+    batch_time = AverageMeter()
+    data_time = AverageMeter()
+    losses = AverageMeter()
+    error_ratio = AverageMeter()
 
-#     # switch to train mode
-#     model.train()
+    # switch to train mode
+    model.train()
 
-#     end = time.time()
-#     for i, (g, h, e, target) in enumerate(train_loader):
+    end = time.time()
+    for i, (g, h, e, target) in enumerate(train_loader):
 
-#         # Prepare input data
-#         if args.cuda:
-#             g, h, e, target = g.cuda(), h.cuda(), e.cuda(), target.cuda()
-#         g, h, e, target = Variable(g), Variable(h), Variable(e), Variable(target)
+        # Prepare input data
+        if args.cuda:
+            g, h, e, target = g.cuda(), h.cuda(), e.cuda(), target.cuda()
+        g, h, e, target = Variable(g), Variable(h), Variable(e), Variable(target)
 
 #         # Measure data loading time
 #         data_time.update(time.time() - end)
