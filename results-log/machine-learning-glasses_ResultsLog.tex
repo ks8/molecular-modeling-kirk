@@ -1522,10 +1522,27 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \item No issues yet on local machine.  
 \end{enumerate}
 
-\subsection{3/27/2016}
+\subsection{3/27/2018}
 
 \begin{enumerate}
 \item Added more functionality to demo\_glasses\_mpnn.  Need to reduce dataset size to 500 in each class and move this crap to Midway so we can get better computing power/GPUs!  
+\end{enumerate}
+
+\subsection{3/28/2018}
+
+\begin{enumerate}
+\item Installed pytorch version 0.1.12 onto Midway 2 home directory.  Found in the data file, data\_coords\_endpoints that there is an empty file called "loading".  
+\item Copied data\_coords\_endpoints to home, removed "loading" file, and truncated it so that there are 600 glass files and 600 liquid files.  
+\item There appears to be an accuracy function in datasets/utils.py 
+\item module load Anaconda3, then source activate my-rdkit-env
+\item Went into project directory.  Did the usual rdkit command.  Then, removed networkx from its location based on teh error message that was being given.  Then pip installed using --user flag networx version 1.11 as well as joblib and tensorboard\_logger.  Also downloaded appropriate version of PyTorch as usual.  Seems to work.  
+\item Had to pip install sklearn --user in /project/depablo/kswanson
+\item At last, it appears to be working!
+\item Problem on workstation: once I add the line, output = model(g, h, e), the process gets killed.  So, perhaps I've reached the limit for what my local workstation can do?
+\item Turning to Midway, here are the following outcomes: if I go onto depablo-gpu, then within the train function, I get an error that starts like THCudaCheck FAIL file=/py/conda-bld/pytorch\_1493672080115/work/torch/lib/THC/THCCachingHostAllocator.cpp line 258 error=11 : invalid 
+\item When I try to run on the log-in node, I get AssertionError: Found no NVIDIA driver on your system.  Please check that you have an NVIDIA GPU and installed a driver from http://www.nvidia.com/Download/index.aspx. 
+\item I am hoping that if I can find the appropriate way to use torch/PyTorch on Midway, then I will be able to solve this.  So, I need to go to RCC next time I work on this to resolve this problem.  
+\item ALSO, next time, I OUGHT TO WORK ON MAKING NEW LIQUID SIMULATIONS!!
 \end{enumerate}
 
 

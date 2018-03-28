@@ -82,8 +82,8 @@ def main():
     global args, best_er1
     args = parser.parse_args()
 
-#     # Check if CUDA is enabled
-#     args.cuda = not args.no_cuda and torch.cuda.is_available()
+    # Check if CUDA is enabled
+    args.cuda = not args.no_cuda and torch.cuda.is_available()
 
     # Load data
     root = args.datasetPath
@@ -190,6 +190,9 @@ def main():
         model = model.cuda()
         criterion = criterion.cuda()
 
+    print('test the training')
+    train(train_loader, model, criterion, optimizer, 0, evaluation, logger)
+
 #     # Epoch for loop
 #     for epoch in range(0, args.epochs):
 
@@ -246,6 +249,8 @@ def train(train_loader, model, criterion, optimizer, epoch, evaluation, logger):
 
     end = time.time()
     for i, (g, h, e, target) in enumerate(train_loader):
+
+        print(i)
 
         # Prepare input data
         if args.cuda:
