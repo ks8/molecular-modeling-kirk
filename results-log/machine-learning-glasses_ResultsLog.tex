@@ -1355,7 +1355,6 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 
 \item Switching to data from data\_liquid155, which corresponds to T = 0.479.
 \item Now running the same versions as before.  
-
 \item PROBLEM: How is this any different from distinguishing between two liquids at different energies/temperatures?  SO we should try to classify between two liquids!!!  Added to the to do list above.  
 
 \end{enumerate}
@@ -1545,6 +1544,157 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \item ALSO, next time, I OUGHT TO WORK ON MAKING NEW LIQUID SIMULATIONS!!
 \end{enumerate}
 
+\subsection{3/30/2018}
+
+\begin{enumerate}
+\item Finally fixed the issue with new liquid simulations.  Can't start seq 0 10, must start seq 1 10, because otherwise the program just sleeps.  So, I am now running a cooling rate of N2e6, 10 examples.  Once they are done, I will look at their average cooling inherent structure energy and determine if I have achieved a lower transition temperature, etc., from which I can determine exactly what data I want to generate and collect.  
+\end{enumerate}
+
+\section{4/2/2018}
+
+\begin{enumerate}
+\item Spoke to Igor at RCC, PyTorch not available on Midway.  Sent him an email to work on it.  
+\end{enumerate}
+
+\section{4/3/2018}
+
+\begin{enumerate}
+\item A decrease of the cooling rate leads to a decrease of the glass transition T\_g.  Josh says 2e8 corresponds to a lower cooling rate, 2e6 to a higher one.  So, 2e8 must be related to the number of timesteps necessary to get to T = 0.05, hence more steps, lower rate.  So, I am now running 20 examples each of rate 2e8, 2e9, and 2e10 to check whether this measurably changes the cooling rate to be below the glass transition.  
+\item Now I'm going back to MPNN to see if I can get this to work on Midway.  
+\item In an email, Igor from RCC says: try sinteractive -p gpu2 --gres=gpu:1, module load cuda/8.0, module load Anaconda/5.0.1, check "which python" and it should show /software/Anaconda3-5.0.1-e17-x86\_64/bin/python.  If not, module purge, repeat second two steps.  
+\item Logged on.  Ran demo\_glass\_mpnn.py, and it gets inside the train function, prints one or two things, then screen connection is terminated.
+\item I am going to test this with the qm9 dataset, just to see if it can do normal training not on my glass/liquid shit.  So, let's try that.  
+\end{enumerate}
+
+
+\section{4/9/2018}
+
+\begin{enumerate}
+\item The N2e8 data finished running.  It computed 20 examples, and using the average cooling data python script, I computed the average cooling curve of these 20 simulations:  
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e8}
+\end{figure}
+
+Compared to the N2e7 cooling curve, 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{accuracies-3-15-2018}
+\end{figure}
+
+this curve does not look markedly different.  In fact, using a rough approximation by looking at the intersection of linear approximations to the glassy and liquid regimes, the glass transition is around 0.4, barely different from 0.37.  
+\item So, instead I will try a faster cooling rate, such as N2e5, and see if I can shift the curve to the right.  There will probably be issues with the cooling.dat file, but we will first just try to run the simulation to see what happens and then diagnose the error.  
+
+\item Try to distinguish between two glasses in the glass regime, try to train on aggregated liquid data.... 
+
+
+\item Now, working on MPNN on Midway.  Was able to go into the data folder in nmp\_qc and download the qm9 dataset using the command "python download.py qm9".  Now, let's try one of the standard demos on this dataset to see if that at least works on Midway. 
+
+ 
+\end{enumerate}
+
+\subsection{4/10/2018}
+\begin{enumerate}
+\item Downloaded qm9 dataset successfully.  Had to pip install wget in environment.  Also, now able to do "python demo\_qm9\_mpnn.py" and it appears to be running completely fine.  
+\item Running this program takes about 4775MiB/11439MiB on midway2-gpu01
+\item Error occurs when running the enumerate(train loader) line...
+
+
+\item Checking capabilities of demo\_glass\_mpnn.py versus demo\_qm9\_mpnn.py.  I want to make sure that they are the same at least up until data\_train etc. by checking exactly what data is being stored and showing that the data types and structures are the same.  
+\item For a single datapoint, data\_qm9\_mpnn.py prints a 'numpy.matrixlib.defmatrix.matrix', 'list', 'dict', and 'list'.  
+\item For a single datapoint, data\_glasses\_mpnn.py prints a 'numpy.ndarray', 'list', 'dict', and 'numpy.ndarray'.
+\item Ok, well here is a point of dissimilarity, so we should make sure to enforce perfect similarity at this point before moving on.  
+\item Went into the file graph\_reader\_class.py and added np.matrix for the adjacency matrix and list() for the target.  Now, we also get 'numpy.matrixlib.defmatrix.matrix', 'list', 'dict', and 'list' for the output.  Dissimilarity resolved. 
+\item Screen still closes when I try to enumerate().  Fuck.  
+\end{enumerate}
+
+\subsection{4/11/2018}
+
+\begin{enumerate}
+\item Making a new directory, 2e5-working-directory, to run N2e5 simulations.  They require having a seed with different variables set so enough cooling.dat information is printed, i.e. in in.analyze-glass and in.make glass set variable freq equal some number less than variable tend.  
+\end{enumerate}
+
+\subsection{4/12/2018}
+
+\begin{enumerate}
+\item Here is the cooling curve for the 2e5 data:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e5}
+\end{figure}
+
+\item Something looks weird, so let's run examples for 2e6 and also for 2e7 just to have a complete comparison with what I'm doing with my current files. Then, we can play around to get things better. 
+\item Created 2e6 folder and set the freq variable to 1000.  Running 20 simulations.
+\item Created something similar for 2e7 folder and set freq variable to 10,000.  Running 10 simulations.  
+\item Finished these, need to download the images. Change plot so it cuts off initial drop to make plot more reasonable.  Running 2e4.  Looks like kink is less distinct.  Message Josh for advice...how determine transition temperature??
+
+\end{enumerate}
+
+\subsection{4/13/2018}
+
+\begin{enumerate}
+\item Beginning collection of images for glass data\_164 T = 0.401, data\_174 T = 0.3035, data\_184 T = 0.206, data\_194 T = 0.1085.  We will use the best model from data\_155 to see how that model does as we cross the glass transition temperature.  In this sense, it's kind of an artificial dataset, since the liquids are not actually liquids but are glasses.  WE SHOULD ALSO try training the model on the ENTIRE liquid curve.  Maybe that's what I can set up on Monday.  
+\end{enumerate}
+
+\subsection{4/16/2018}
+
+\begin{enumerate}
+\item We now have representative cooling curves for 2e4, 2e5, 2e6, 2e7, and 2e8, respectively: 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e4}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e5}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e6}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e7}
+\end{figure}
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e8}
+\end{figure}
+
+\item Let's throw out 2e4, since the curve looks pretty different from the others, and start with 2e5. 
+\item Wrote a python script, Tg\_calculation.py, which I used to compute approximate Tg values:
+
+\begin{align}
+\begin{split}
+\text{2e5} \hspace{5mm} T_g \approx 0.385279666197 \\
+\text{2e6} \hspace{5mm} T_g \approx 0.374750431427 \\
+\text{2e7} \hspace{5mm} T_g \approx 0.340983034936 \\
+\text{2e8} \hspace{5mm} T_g \approx 0.290198100183 
+\end{split}
+\end{align}
+
+For the glass points that determine a line in the glass regime, I used temperatures 0.05 and close to 0.20015, and for the points in the liquid regime I used temperatures close to 0.50045 and 0.80075.  Because 2e5 and 2e8 appear to have a different enough $T_g$, I will now generate 10,000 simulations for both 2e5 and 2e8.  I will re-compute the glass transition temperatures after this, to confirm their values.  I will then take the midpoint temperature, around T = 0.338, and take configurations from 2e5 that will correspond to glass and configurations from 2e8 that will correspond to liquid.  I will then train the network to see if I can distinguish between them.  
+
+\item Created folders 2e8-folder and 2e5-folder.  For 2e8, changing the in.make-glass and in.analyze-glass in seed to have variable freq equal 1000000.  For 2e5, changing to 1000.    Running 500 simulations for each.  Also, removing the sleep command, as it is unnecessary automation.  
+
+\item Tried running main\_glassliquid.sbatch to test the performance of the best model from data\_liquid155 on other datapoints, but getting error, "No such file or directory."  Not sure what is going on.  Emailed Igor to figure it out. 
+
+\item Tested the best version from data\_liquid155 on other datasets.  Accuracy at least 90\% for anything lower than 155, then gradually decreases down to 80, 70, 60, finally 45\% for data\_liquid194.  Not a sharp cutoff though.  
+
+\item Inherent structure energy of -3.66 will be a glass for 2e5 but a liquid for 2e8.  That is what we want to compare.  We will start first by evaluating the data\_liquid155 model on this.  We would also try training across the curve.  And then training directly on 2e5 versus 2e8.   
+
+
+
+
+\end{enumerate}
 
 
 
