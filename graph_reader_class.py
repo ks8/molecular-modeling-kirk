@@ -63,14 +63,16 @@ class GlassyData():
 	
 		# Compute the target property
 		if 'glass' in self.metadata[index]:
-			target = np.asarray([1.0, 0.0])
+			target = list([1.0, 0.0])
 		else:
-			target = np.asarray([0.0, 1.0])
+			target = list([0.0, 1.0])
 
 		# Compute the atom features
 		for i in range(data.shape[0]):
 			features.append([data[i][0]])
-	
+
+		# Transform the numpy array into numpy matrix
+		adj_matrix = np.matrix(adj_matrix)	
 
 		# Return adjacency matrix, feature list, distances dictionary, and target list
 		return (adj_matrix, features, graph_distances), target
