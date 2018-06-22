@@ -73,10 +73,19 @@ def get_unique_labels(metadata):
 def create_one_hot_mapping(unique_labels):
 	one_hot_mapping = dict()
 
-	for i, label in enumerate(unique_labels):
-		one_hot = np.zeros(len(unique_labels))
-		one_hot[i] = 1
-		one_hot_mapping[label] = one_hot
+	one_hot = np.zeros(2)
+	one_hot[0] = 1
+	one_hot_mapping['liquid'] = one_hot
+
+	one_hot = np.zeros(2)
+	one_hot[1] = 1
+	one_hot_mapping['glass'] = one_hot
+
+	# for i, label in enumerate(unique_labels):
+	# 	one_hot = np.zeros(len(unique_labels))
+	# 	one_hot[i] = 1
+	# 	print(i, label, one_hot[i])
+	# 	one_hot_mapping[label] = one_hot
 
 	return one_hot_mapping
 
