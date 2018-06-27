@@ -1696,8 +1696,170 @@ For the glass points that determine a line in the glass regime, I used temperatu
 
 \end{enumerate}
 
+\section{4/18/2018}
+
+\begin{enumerate}
+\item Evaluate current model on a different cooling curve, say 2e5 or 2e6.  
+\item Construct artificial geometries, tuning separation between particles, to feed into trained network.
+\item Talk to Daniel about his configurations.
+\item Compare 2e5 and 2e8 when it's done.
+\item Choose a smaller subsection of the 4320 to do MPNN with....LOL WHY DIDN'T I DO THIS BEFORE AHHAHA
+\end{enumerate}
+
+\section{4/23/2018}
+
+\begin{enumerate}
+\item Looking at the cooling curves again, the glass at energy -3.866 for cooling rate 2e5 is still a liquid for cooling rate 2e7, for which we already have data.  So, we already have FULL data to do this, haha great.
+\item First, let's construct a complete average cooling curve for cooling rate 2e5: 
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{average_cooling_data_N2e5_full}
+\end{figure}
+
+\item Now, let's recalculate the estimated glass transition temperature.  We get:   
+
+\begin{align}
+\begin{split}
+\text{2e5} \hspace{5mm} T_g \approx 0.380974669843 \\
+\end{split}
+\end{align}
+
+which is similar to previous value.  
+
+\item Now, we will evaluate the current model on 2e5.  We will construct a dataset that is composed of glass around T = 0.05 and liquid around T = 0.8.  Specifically, we will choose T = 0.05, which corresponds to energy -3.867438353 and T = 0.80075, which corresponds to energy -3.82253291198.   Generation of 10,000 images of each is currently running.  
+
+\item We will also need data from 2e7 that corresponds to energy -3.867438353.  Based on the average cooling curve for 2e7 data, T = 0.54725 (i.e. simulation step 14800000) has an average energy of -3.86698027516.  So, we will compute 10,000 images at this temperature.  This is running now.  
+\end{enumerate}
+
+\section{4/24/2018}
+
+\begin{enumerate}
+\item The image processing for 2e5 is complete.  We now have 10,000 images of glass and liquid, where glass is at T = 0.05 and liquid is at T = 0.80075.  We will now evaluate the version 12 best model at 155 on this and see what accuracy it obtains.  
+\item Moving the folder containing 2e5 images, called data\_liquid\_2e5123, to /project/depablo/kswanson/machine-learning-glasses.  
+\item Changing metadata to be from that folder.  
+\item Evaluating, we get validation accuracy of 89.3311\% and test accuracy of 89.1304\%.  This is good news!
+\item Now, let's move on to glass versus supercooled liquid.
+\item Constructed a folder called data\_supercooled, which contains the image data from T = 0.05 for cooling rate 2e5, labelled glass, and the image data from T = 0.54725 for cooling rate 2e7, labelled liquid.  
+\item Switching metadata to be from data\_supercooled.  
+\item Able to classify with 87.2148\% validation and 85.2013\% test! Excellent.  
+\end{enumerate}
+
+\section{4/26/2018}
+
+\begin{enumerate}
+\item We are now going to return to MPNN to crush it.  Start by reducing our dataset so that each configuration file only consists of 20 atoms.  Let's see if our algorithm can at least process that.
+\item Copy coords\_config.py to coords\_config\_restricted.py.  Change line 60 so that we only range over 20 atoms.  Let's try to use this now to construct a new dataset.  Modifying make\_coords\_kirk.sh on Midway 2 in the 2017 folder so that it executes the new restricted coords file.  
+\item Generated this dataset with about 200 total glass + liquid samples, each with 20 atoms.  Let's try our MPNN code on this shit.  
+\item Ok, gpu2 is busy.  In the meantime...
+\item Removed a lot of files from Download folder.  Followed instructions to get my-rdkit-env and associated packages on my laptop (desktop is, like, broken or something).  
+\item Downloaded the 20 atom data file from Midway.  Modifying graph\_reader\_class.py.
+\item Doesn't work, because no NVIDIA driver.   
+\end{enumerate}
+
+\section{4/30/2018}
+
+\begin{enumerate}
+\item Took demo\_glass\_mpnn\_working.py and graph\_reader\_class\_classification.py and moved to Midway.  On midway2, gpu2, do module load cuda/8.0, module load Anaconda3/5.0.1, then python filename --no-cuda.  It works!  Time to see how large of a graph we can process on Midway.  
+\item So, moving data\_coords\_endpoints\_restricted100 to the data/glass folder.  Have to change the graph reader class to support 100 sized data instead of 20.  
+\item Ok, getting 'bus error' or 'screen terminated'.  Let's try backing it off to 25, and incrementally move here to find the breaking point.  Then we will check with RCC to see what the issue is, and move on from there.  
+\item System I.  On Midway 2 gpu 2, we do: sinteractive --partition=gpu2 --gres=gpu:1.  Then, we do module load cuda/8.0, module load Anaconda3/5.0.1, source activate my-rdkit-env.  Then, we do python demo\_glasses\_mpnn\_classification.py --batch-size=.   So, we are using cuda.  We are experimenting with different datasets.  Each dataset has approximately 100 glass and 100 liquid configurations.  The difference between the datasets is the number of atoms in each configuration.  Also, we are using the change g, h, e, target = next(iter(train\_loader)) instead of enumerate(train\_loader), which appears to work better.  The So far, we have gotten up to: size 20 batch size 100, size 25 batch size 100, (batch sizes not really representative), 100 batch size 20, (we'll do batch size 20 from now on), 200 with batch size 20.  
+\item Noticed that 10624 MiB / 11438 MiB was the memory usage in this process.  So, my guess is that a similar problem is occurring as before with TensorFlow.  We need a command that will restrict memory usage on the GPU to allow growth.  This is probably why I am getting kicked off/it is complaining about memory problems.  
+\item From the developer: i think measuring GPU memory usage via nvidia-smi might be misleading (and might be the issue). We use a caching allocator and a few tricks, so we cant use nvidia-smi's reporting. https://discuss.pytorch.org/t/using-volatile-true-for-prediction-uses-more-gpu-memory-than-volatile-false/8330
+\item Let's test the volatile thingy?  
+\item Use multiple GPU nodes in parallel?
+\end{enumerate}
+
+\section{5/15/2018}
+\begin{enumerate}
+\item Was not writing stuff in the log for a while.  So there will be some kind of discontinuity here. 
+\item The first thing we want to do is to generate 100 examples of the new, filled out, artificial five-fold symmetry images.  The python script we are working from is called artificial-geometries.py.  This is running now.
+\item We are also running something similar, but for three-fold symmetry.  Once these are done, we will render the images and test.
+\item Finally, to test another hypothesis we have, we will construct images that have no symmetry or clustering at all.  We will simply leave that part out.  We will create a new python file called artificial-geometries-liquid.py for this task.  This is running now as well on Midway.
+\item This is what the clusters of 5-fold symmetry look like:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{5-fold-clusters}
+\end{figure}
+\item This is what the filled out picture might look like: 
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{5-fold-clusters-full}
+\end{figure}
+\item This is what the clusters of 3-fold symmetry look like:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{3-fold-clusters}
+\end{figure}
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{3-fold-cluster-full}
+\end{figure}
+\item With zero symmetry, i.e. random placement only, we have:
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.6]{zero-symmetry}
+\end{figure}
+\item POTENTIAL IDEAS: Don't fill in the cluster area with any more extra particles.  Save that for the other regions.  For the artificial liquid, i.e. zero symmetry, adjust the blue particles more so that they clump a bit.  
+\end{enumerate}
+
+\section{5/16/2018}
+\begin{enumerate}
+\item Potential problem: Midway 2 gpu2 is not giving expected accuracies.  On data\_supercooled, for example, it's showing the inverse of 86\% accuracy.  Wondering if there is some kind of memory issue going on here.  Tried using depablo-gpu but getting the following error: kernel version 384.69.0 does not match DSO version 367.44.0 -- cannot find working devices in this configuration.  Emailed Igor and awaiting information.  
+\item Also, turned the 0 symmetry, 3 symmetry, and 5 symmetry files into images. 
+\end{enumerate}
+
+\section{6/11/2018}
+\begin{enumerate}
+\item We are going to start by cleaning up the code for generating artificial images via Shubhendu.  We will then move on to trying Josh's idea.  We could also train a CNN on small subsets in parallel with MPNN on small subsets.  See the smallest subset that MPNN can train on with a batch size of 20.  We should also pitch the current results to Prof. Skinner to see what he thinkgs about publishing without interpretation.   
+\end{enumerate}
+
+\section{6/22/2018}
+\begin{enumerate}
+\item From a while ago.  We discovered that labeling from the function create\_one\_hot\_mapping was inconsistent.  So, when checking accuracy, one must make sure to manually assign the correct labeling after checking what the correct labeling is.  For the data\_liquid155\_version12\_step1\_best\_model.ckpt, the correct labeling is liquid as [1, 0] and glass as [0, 1].  
+\item So for now, we are going to do a manual assignment.  Updated this on main\_glassliquid.py and on GitHub.
+\item Now, we have an issue where the program is getting killed.  Tried ./filename for saver, but still it just gets killed.  What is going on with the saver?  Restoration seems to go ok, but then the accuracy evaluation just fails.    
+\end{enumerate}
+
+\section{6/25/2018}
+\begin{enumerate}
+\item Current To Do List:
+\subitem Get the singularity container to work on depablo-gpu nodes, since this is the only tool we currently have left  
+\subitem Overlay the glass cooling curves to show when the depart each other, as Skinner mentioned
+\subitem Train on glass versus supercooled liquid at the same energy, or glass versus glass at the same energy, in order to get a better percentage
+\subitem Deal with the question of whether rendering the plots using the blue and orange dots screws with the data
+\subitem Train on PVD versus liquid-cooled data in order to show a complete story
+\subitem Try Josh's Monte Carlo scheme 
+\subitem Use TensorBoard, Try Keras
+\subitem Implement MPNN on subsets, train CNN on subsets
+\subitem Implement MPNN + pooling as Shubhendhu suggested to analyze the entire image 
+\subitem Read de Pablo + Ediger papers
+\subitem Understand why PVD versus liquid cooling structure analysis was important for Dan's paper
+\subitem Coordinate system independent necessary?  Ask Alexei 
+\subitem Analyze spherical harmonics
+\subitem Check out Nick's DeepChem suggestion (MPNN implemented there?)
+\subitem Run full 2e8 data in order to have that full dataset
+\subitem Ask Shubhendhu example of how the network
+\subitem Read papers on machine learning!!! Start with all of the papers Shubhendhu has sent recently.........
 
 
+\item Just ran the following on midway-13b-18 (i.e. depablo-gpu) from the /project/depablo/kswanson/machine-learning-glasses directory, and it printed final validation accuracy 0.862784 and final test accuracy 0.863454 on data\_supercooled: \\
+sinteractive --partition=depablo-gpu --gres=gpu:1
+module load singularity
+singularity exec -B /project:/project --nv /software/src/singularity\_images/tf\_1.8.0.simg python main\_glassliquid.py -eta\_initial=1e-3 -eta\_final=1e-4 -eta\_threshold=0.90 -batch\_size=1 -iterations=1500 -beta=0.01 -keep\_probability=0.5 -filename="artificial-eval" -training\_data\_aug=False -restart=True -evaluation=True -restart\_file="data\_liquid155\_version12\_step1\_best\_model.ckpt" 
+\item Now, we will go back to MPNN and see how large we can go in terms of number of particles.  Goal is to get at least 100, perhaps up to 300, with batch size 20.  
+\item Problem.  We are trying the following command, from Igor's email a while ago:
+module load singularity
+singularity shell --nv /software/src/singularity\_images/PyTorch\_cuda\_9.0.simg python demo\_glasses\_mpnn\_classification.py --batch-size=5 from /home/swansonk1/nmp-qc/demos.  It says no module named rdkit.  So, tried source activate my-rdkit-env, but this is not possible.  Only works after module load Anaconda3.  But then after source activate, I try the module load sinularity stuff and I still get the rdkit error.  I'm not sure how I got this stuff to work before.  But perhaps I need to load this environment in singularity itself, in other words, after I do module load singularity, I THEN need to install the rdkit environment.  So, we will try this tomorrow morning.  If this does not work, and we have exhausted all other combinations, we will email Igor.  
+\end{enumerate}
+
+\section{6/26/2018}
+\begin{enumerate}
+\item Starting where we left off yesterday.  
+\item In /home/swansonk1, tried module load Anaconda3, then conda create -c rdkit -n my-rdkit-env-test rdkit.  It appeared to download and install all relevant packages.  Source activate my-rdkit-env-test, then pip list shows that the packages are indeed installed, apparently.  
+\item Tried module load Anaconda3, module load singularity, source activate my-rdkit-env-test, singularity shell --nv /software/src/singularity\_images/PyTorch/cuda\_9.0.simg python demo\_glasses\_mpnn\_classification.py --batch-size=5, but got the error /usr/local/Anaconda3-5.1.0/bin/python: /usr/local/Anaconda3-5.1.0/bin/python: cannot execute binary file.  Then tried module load Anaconda3, module load singularity, source activate my-rdkit-env-test, singularity exec --nv /software/src/singularity\_images/PyTorch\_cuda\_9.0.simg python demo\_glasses\_mpnn\_classification.py --batch-size=5 and got the error ModuleNotFoundError: No module named 'rdkit', even though the virtual environment definitely contains rdkit.  
+\item Tried simply downloading using conda install the PyTorch version I did on local machine a long time ago, only using module load Anaconda3 and no singularity.  Then just ran python demo\_glasses\_mpnn\_classification.py --batch-size=10, but the program crashed after "Check cuda."  
+\end{enumerate}
 
 
 \begin{thebibliography}{Al-F11}
