@@ -1916,7 +1916,7 @@ singularity shell --nv /software/src/singularity\_images/PyTorch\_cuda\_9.0.simg
 \includegraphics[scale=0.6]{singularity-error}
 \end{figure}
 \item Bullshit.  In the meantime, got on to gpu2 and trying out https://github.com/rusty1s/pytorch\_geometric/blob/master/README.md.  
-\item on gpu2, in /home/swansonk1, did module load Anaconda3, module load cuda/8.0, module unload gcc, according to https://git.rcc.uchicago.edu/ivy2/PyTorch\_midway2.  Then, created virtual environment via cfonda create -n geometric-env, according to https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/.  Following installation instructions now.  pip install cffi, already satisfied.  pip install --upgrade torch-scatter, error on no permissions, so we do pip install --user --upgrade torch-scatter, and it works, as well as pip install --user --upgrade torch-unique, "" torch-cluster, ""torch-spline-conv, pip install --user torch-geometric.  
+\item on gpu2, in /home/swansonk1, did module load Anaconda3/5.0.1, module load cuda/8.0, module unload gcc, according to https://git.rcc.uchicago.edu/ivy2/PyTorch\_midway2.  Then, created virtual environment via cfonda create -n geometric-env, according to https://uoa-eresearch.github.io/eresearch-cookbook/recipe/2014/11/20/conda/.  Following installation instructions now.  pip install cffi, already satisfied.  pip install --upgrade torch-scatter, error on no permissions, so we do pip install --user --upgrade torch-scatter, and it works, as well as pip install --user --upgrade torch-unique, "" torch-cluster, ""torch-spline-conv, pip install --user torch-geometric.  
 \item Continuing to read documentation.  COO from Wikipedia says stores a list of (row, column, value) tuples.  
 \item data.contains\_isolated\_nodes() will be a great way to check for connectivity.    
 \end{enumerate}
@@ -1980,6 +1980,12 @@ In what follows, we define previous models in the literature by specifying the m
 \item Thought: perhaps we just train on subsets - break down a configuration into smaller elements, train on these all with lables, then for a larger configuration, break it up and take the average prediction on each component.  
 
 \item Paper Review: recent Shubhendhu materials hierarchy paper
+\end{enumerate}
+
+\section{8/1/2018}
+\begin{enumerate}
+\item https://github.com/rusty1s/pytorch\_geometric again.  Followed instructions from notes on 7/12/2018, on gpu2 interactive session, module load Anaconda3/5.0.1, module load cuda/8.0, module unload gcc, source activate geometric-env.  Now, let's continue the tutorial online.  
+\item Another potential gem: "We can convert the point cloud dataset into a graph dataset by generating nearest neighbor graphs from the point clouds via transforms".  
 \end{enumerate}
 
 
