@@ -241,6 +241,43 @@ Reid et al.'s definition of inherent structure energy, as well as the energy com
 \section{9/11/2018}
 \begin{enumerate}
 \item First thing we are going to do is to create an actual dataset folder on midway.  Second thing will be to, step by step, build a custom dataset in PyTorch Geometric.  
+\item On /home/swansonk1, directory called pytorch-geometric.  Copying dataset there called data\_coords\_endpoints\_restricted100, which has 100 files, 500 glass and 500 liquid, each containing the xy coordinates of 100 particles and particle type (I think most or all are type 1 in these subsets).  
+\end{enumerate}
+
+\section{9/12/2018}
+\begin{enumerate}
+\item Data objects in torch\_geometric use the COO connectivity format for graphs.  So, if we have the following adjacency matrix for a graph:
+\begin{align}
+\begin{split}
+\begin{bmatrix}
+0 & 1 & 0 \\
+1 & 0 & 1  \\
+0 & 1 & 0  
+\end{bmatrix}
+\end{split}
+\end{align}
+we represent this in condensed form as:
+\begin{align}
+\begin{split}
+\begin{bmatrix}
+0 & 1 & 1 & 2 \\
+\end{bmatrix}\\
+\begin{bmatrix}
+1 & 0 & 2 & 1 \\
+\end{bmatrix}
+\end{split}
+\end{align}
+
+The first is row values, second column values, of the matrix indices where 1s are located.  So, we have 1s at (0, 1), (1, 0), (1, 2), and (2, 1).  
+
+\end{enumerate}
+
+\section{9/16/2018}
+\begin{enumerate}
+\item In BASH terminal, type "source activate pytorch-env".  In this environment, we have installed python 3.6, PyTorch for windows, and jupyter notebooks.  Then, type "jupyter notebook --no-browser".  
+\item Used "conda install pytorch-cpu -c pytorch" to install pytorch.  Used "pip install torchvision", NOT pip3, to install torchvision.  
+\item Had to pip install matplotlib.  Perhaps next time when creating an environment, I should do the anaconda command that includes all relevant packages..
+\item On Midway 2 gpu2, module load Anaoncda3/5.0.1, module load cuda/8.0, module unload gcc, source activate geometric-env.  
 \end{enumerate}
 
 
