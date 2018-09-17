@@ -186,12 +186,14 @@
 
 
 
-\title{Machine Learning Results Log Summer 2018}
+\title{Machine Learning Results Log Summer 2018 (August - Present)}
 \author{Kirk Swanson}
 \email{swansonk1@uchicago.edu}
 \address{Institute for Molecular Engineering, University of Chicago, 5640 S Ellis Ave, Chicago, IL 60637}
 %\keywords{path integral molecular dynamics, path integral monte carlo, metropolis algorithm}
 \date{\today}
+
+\maketitle
 
 \section{8/6/2018}
 \begin{enumerate}
@@ -206,9 +208,42 @@
 \item Now reading the Data Loading and Processing Tutorial on PyTorch: https://pytorch.org/tutorials/beginner/data\_loading\_tutorial.html.  "torch.utils.data.Dataset is an abstract class representing a dataset.  Your custom dataset should inherit Dataset and override the following methods: \_\_len\_\_ so that len(dataset) returns the size of the dataset, and \_\_getitem\_\_ to support the indexing such that dataset[i] can be used to get the ith sample."  Transforms can often be written using \_\_init\_\_ method as well as \_\_call\_\_ method.  
 \end{enumerate}
 
+\section{8/20/2018}
+\begin{enumerate}
+\item The following describes issues related to the inherent structure energy, $E_{IS}$, computed in liquid-cooled simulations used for my proposed research project, "Deep Learning for Glassy Physics."  The question of the origin of $E_{IS}$ values came up during a talk I was giving to Professors de Pablo, Galli, and Skinner on 8/19/2018, with Rovana present.  Professor Skinner asked what my computed $E_{IS}$ values represented, which are on the order of -4.0 (Lennard-Jones units) for a binary mixture of 4,320 particles interacting according to a Lennard-Jones force.  I suggested that these values represent the total energy of a minimized configuration, while he argued that they  represent the energy per particle of a configuration.  I was unable to resolve the issue on the spot and instead said that I would be happy to review the issue after the talk.  
+\par In order to resolve the issue, and to explain why I was suggesting that these $E_{IS}$ values were total energy values, I first turned to the paper "Age and structure of a model vapour-deposited glass," by Reid et al.  My liquid-cooled simulation parameters and methdology are derived directly from this paper, not only because it provides clear instructions for performing this type of computation, but also because I wanted to ensure similarity between my data and that of Reid et al.  My machine learning project is attempting to answer questions raised in this paper, so it is important to produce simulations that have comparable characteristics.  For their 2D liquid-cooled systems, Reid et al. measure inherent structure energy values also to be on the order of -4.0.  The paper explains, "The inherent structure energy $E_{IS}$ of a configuration, used to quantify its stability, is the potential energy of a configuration brought to its local energy minimum."  This definition clearly suggests that $E_{IS}$ is a total energy value, and no where else in the paper is the energy defined to be a per atom or per particle quantity.  \par
+The following shows the LAMMPS script that I used to compute inherent structure energy values from snapshots of a simulation:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{energies}
+\end{figure}
+
+As shown above, a trajectory is read into the system, and then configurations every 100,000 steps are analyzed.  This analysis consists of three steps: perform an energy minimization (line 31), compute an energy (line 32), and print these values to an external file (line 35).  The energy computation on line 32, "variable mype equal pe" is responsible for computing the inherent structure energy.  The energy is taken from "pe", which is a variable pre-defined in LAMMPS and is described in official online documentation.  The documentation clearly defines "pe" as a total energy value.  The following is a screenshot from https://lammps.sandia.gov/doc/thermo\_style.html:
+
+\begin{figure}[H]
+\centering
+\includegraphics[scale=0.7]{lammps_pe}
+\end{figure}
 
 
-\maketitle
+
+   
+
+
+Reid et al.'s definition of inherent structure energy, as well as the energy computation command in my code, clearly explain why I suggested that my $E_{IS}$ values represent total potential energies rather than energies per atom.  I am currently working to definitively confirm the origins of computed $E_{IS}$ values to fully resolve this issue.      
+
+\par Much more importantly,however, the distinction between the total energy of a configuration and the average energy per atom of a configuration does not impact my project or my results.  I am using this inherent structure energy value to compare the potential energy in different configurations that have the \textit{same number of particles}.  Therefore, making this comparison using total energy is equivalent to making the comparison using average energy per particle, and the type of comparison used has no impact on any  aspect of the project or the results that I have so far collected.    
+
+
+\end{enumerate}
+
+\section{9/11/2018}
+\begin{enumerate}
+\item First thing we are going to do is to create an actual dataset folder on midway.  Second thing will be to, step by step, build a custom dataset in PyTorch Geometric.  
+\end{enumerate}
+
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

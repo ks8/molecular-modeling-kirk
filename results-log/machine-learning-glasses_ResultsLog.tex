@@ -1193,7 +1193,7 @@
 
 \begin{enumerate}
 \item New idea on MPNN.  Modified Josh's code, "plot\_config.py", and renamed it "coord\_config.py".  This new file eliminates the plotting function, and instead outputs a text file with the raw (x, y, z) atomic coordinates of a given configuration.  Added this file to GitHub.
-\item Currently running the (x, y, z) coords program on Midway to generate these files for the endpoints of the simulation (i.e. at 20,000,000 and 100,000) for Shubhendu.  
+\item Currently running the (x, y, z) coords program on Midway to generate these files for the endpoints of the simulation (i.e. at 20,000,000 and 100,000).  
 \end{enumerate}
 
 \subsection{2/22/2018}
@@ -1216,7 +1216,7 @@ These dots represent CNNs that have been trained exactly at that data point.  So
 
 It looks nice, but what if we're just learning a much more complicated way of calculating the inherent structure energy?
 
-\item After speaking to Josh, these are the steps we decided that we need to take, using CNNs:
+\item After speaking to Josh, these are the steps I decided that I need to take, using CNNs:
 
 \item Classify glass vs liquid:
 \subitem Improve model accuracy using data across the liquid regime
@@ -1363,7 +1363,7 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \begin{enumerate}
 \item Read sections of papers (now on Box) on MPNN, meeting with Shubhendu tomorrow.
 \item Still running training on 155.
-\item Looked into simulating new liquids that will be at the same inherent structure energy as the glass, but ran into issues with the batch scripts as written - emailed Josh for assistance.
+\item Looked into simulating new liquids that will be at the same inherent structure energy as the glass, but ran into issues with the batch scripts as written.
 \end{enumerate}
 
 \subsection{3/8/2017}
@@ -1559,7 +1559,7 @@ It looks nice, but what if we're just learning a much more complicated way of ca
 \section{4/3/2018}
 
 \begin{enumerate}
-\item A decrease of the cooling rate leads to a decrease of the glass transition T\_g.  Josh says 2e8 corresponds to a lower cooling rate, 2e6 to a higher one.  So, 2e8 must be related to the number of timesteps necessary to get to T = 0.05, hence more steps, lower rate.  So, I am now running 20 examples each of rate 2e8, 2e9, and 2e10 to check whether this measurably changes the cooling rate to be below the glass transition.  
+\item A decrease of the cooling rate leads to a decrease of the glass transition T\_g.  2e8 corresponds to a lower cooling rate, 2e6 to a higher one.  So, 2e8 must be related to the number of timesteps necessary to get to T = 0.05, hence more steps, lower rate.  So, I am now running 20 examples each of rate 2e8, 2e9, and 2e10 to check whether this measurably changes the cooling rate to be below the glass transition.  
 \item Now I'm going back to MPNN to see if I can get this to work on Midway.  
 \item In an email, Igor from RCC says: try sinteractive -p gpu2 --gres=gpu:1, module load cuda/8.0, module load Anaconda/5.0.1, check "which python" and it should show /software/Anaconda3-5.0.1-e17-x86\_64/bin/python.  If not, module purge, repeat second two steps.  
 \item Logged on.  Ran demo\_glass\_mpnn.py, and it gets inside the train function, prints one or two things, then screen connection is terminated.
@@ -1629,7 +1629,7 @@ this curve does not look markedly different.  In fact, using a rough approximati
 \item Something looks weird, so let's run examples for 2e6 and also for 2e7 just to have a complete comparison with what I'm doing with my current files. Then, we can play around to get things better. 
 \item Created 2e6 folder and set the freq variable to 1000.  Running 20 simulations.
 \item Created something similar for 2e7 folder and set freq variable to 10,000.  Running 10 simulations.  
-\item Finished these, need to download the images. Change plot so it cuts off initial drop to make plot more reasonable.  Running 2e4.  Looks like kink is less distinct.  Message Josh for advice...how determine transition temperature??
+\item Finished these, need to download the images. Change plot so it cuts off initial drop to make plot more reasonable.  Running 2e4.  Looks like kink is less distinct.  
 
 \end{enumerate}
 
@@ -1811,7 +1811,7 @@ which is similar to previous value.
 
 \section{6/11/2018}
 \begin{enumerate}
-\item We are going to start by cleaning up the code for generating artificial images via Shubhendu.  We will then move on to trying Josh's idea.  We could also train a CNN on small subsets in parallel with MPNN on small subsets.  See the smallest subset that MPNN can train on with a batch size of 20.  We should also pitch the current results to Prof. Skinner to see what he thinkgs about publishing without interpretation.   
+\item We are going to start by cleaning up the code for generating artificial images.  We will then move on to trying Josh's idea.  We could also train a CNN on small subsets in parallel with MPNN on small subsets.  See the smallest subset that MPNN can train on with a batch size of 20.  We should also pitch the current results to Prof. Skinner to see what he thinkgs about publishing without interpretation.   
 \end{enumerate}
 
 \section{6/22/2018}
@@ -1832,7 +1832,7 @@ which is similar to previous value.
 \subitem Try Josh's Monte Carlo scheme 
 \subitem Use TensorBoard, Try Keras
 \subitem Implement MPNN on subsets, train CNN on subsets
-\subitem Implement MPNN + pooling as Shubhendhu suggested to analyze the entire image 
+\subitem Implement MPNN + pooling to analyze the entire image 
 \subitem Read de Pablo + Ediger papers
 \subitem Understand why PVD versus liquid cooling structure analysis was important for Dan's paper
 \subitem Coordinate system independent necessary?  Ask Alexei 
@@ -1840,10 +1840,9 @@ which is similar to previous value.
 \subitem Analyze RDFs.....
 \subitem Check out Nick's DeepChem suggestion (MPNN implemented there?)
 \subitem Run full 2e8 data in order to have that full dataset
-\subitem Ask Shubhendhu example of how the network
 \subitem Issues to consider for PVD: need 4320 atoms exactly, need 80:20 stoichiometry exactly, 
 \subitem Understand Tg and other issues/metrics for PVD and LC glasses...
-\subitem Read papers on machine learning!!! Start with all of the papers Shubhendhu has sent recently.........
+\subitem Read papers on machine learning!!! 
 \subitem Try both MPNN as well as Geometric Deep Learning github
 
 
