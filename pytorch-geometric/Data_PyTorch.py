@@ -1,7 +1,9 @@
-"""Custom PyTorch data 2D glass data objects, by Kirk Swanson"""
+"""Custom PyTorch data 2D glass data objects, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
 # Load modules
 from __future__ import print_function, division
 import torch
+from loop_PyTorch import contains_self_loops, remove_self_loops
+from isolated_PyTorch import contains_isolated_nodes
 
 # Data class
 class Data(object):
@@ -64,8 +66,50 @@ class Data(object):
 			if self[key] is not None:
 				yield key, self[key]
 
+	@property
+	def num_nodes(self):
+		"""Returns the 0th index of data.x or data.pos for the number of nodes in the system.  data.x and data.pos should have the same 0th index"""
+		for key, item in self('x', 'pos'):
+			return item.size(0)
+		return None
 
+	@property 
+	def num_edges(self):
+		"""Returns the 1th index for data.edge_index and the 0th index for data.edge_attr, corresponding to number of edges in graph"""
+		for key, item in self('edge_index', 'edge_attr'):
+			if key == 'edge_index':
+				return item.size(1)
+			else:
+				return item.size(0)
+		return None
 
+	@property
+	def num_features(self):
+		"""Number of features, encoded in data.x"""
+		return 1 if self.x.dim() == 1 else self.x.size(1)
+
+	def contains_isolated_nodes(self):
+		"""Boolean for existence of isolated nodes"""
+		return contains_isolated_nodes(self.edge_index, self.num_nodes)
+
+	def contains_self_loops(self):
+		"""Boolean for self-loops in the graph"""
+		return contains_self_loops(self.edge_index)
+
+	def apply(self, func, *keys):
+		"""Apply a function to every key (if *keys is blank) or to a specific set of specified *keys"""
+		for key, item in self(*keys):
+			self[key] = func(item)
+		return self
+
+	def to(self, device, *keys):
+		"""Move data attributes to device.  data.to(device) moves all attributes to device, while data.to(device, 'x', 'pos') moves only data.x and data.pos to device"""
+		return self.apply(lambda x: x.to(device), *keys)
+
+	def __repr__(self):
+		"""Representation of class in interpreter"""
+		info = ['{}={}'.format(key, list(item.size())) for key, item in self]
+		return '{}({})'.format(self.__class__.__name__, ', '.join(info))
 
 
 
