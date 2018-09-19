@@ -48,6 +48,3 @@ class GlassyDataset(Dataset):
 
 
 
-
-
-# We need to take our data and represent 
