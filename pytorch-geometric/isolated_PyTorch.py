@@ -1,4 +1,4 @@
-"""Custom PyTorch isolated methods, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
+"""Custom PyTorch method to check for isolated nodes, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
 # Load modules
 from __future__ import print_function, division
 import torch

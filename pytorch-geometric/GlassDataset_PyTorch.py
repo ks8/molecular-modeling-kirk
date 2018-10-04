@@ -5,31 +5,43 @@ import json
 import os
 import torch
 import numpy as np 
-from torch.utils.data import Dataset, DataLoader 
-from torchvision import transforms, utils 
+from torch.utils.data import Dataset
+from Data_PyTorch import Data 
+
 
 # Dataset class
-class GlassyDataset(Dataset):
-	""" Custom dataset for 2D Glassy data"""
+class GlassDataset(Dataset):
+	""" Custom dataset for 2D glass data"""
 
-	def __init__(self, metadata_file, root_dir, transform=None):
+	def __init__(self, metadata_file, transform=None):
 		"""
 		Args:
 			metadata (string): Path to the metadata file
-			root (string): Directory with all the coordinate files 
 		"""
 		super(Dataset, self).__init__()
 		self.metadata = json.load(open(metadata_file, 'r'))
-		self.root = root_dir
 		self.transform=transform
 
 	def __len__(self):
 		return len(self.metadata)
 
 	def __getitem__(self, idx):
+		""" Output a data object with node features, positions, and target value, transformed as required"""
 		coords_file = np.loadtxt(self.metadata[idx]['path'])
+		data = Data()
+		data.pos = torch.tensor(coords_file[:, 1:], dtype=torch.float)
+		data.x = torch.tensor([[x] for x in coords_file[:, 0]], dtype=torch.float)
+		if self.metadata[idx]['label'] == 'glass':
+			data.y = torch.tensor([0])
+		else:
+			data.y = torch.tensor([1])
 
-		if self.transform:
-			coords_file = self.transform(coords_file)
+		data = data if self.transform is None else self.transform(data)
 
-		return coords_file
+		return data
+
+	def __repr__(self):
+		return '{}({})'.format(self.__class__.__name__, len(self))
+
+
+

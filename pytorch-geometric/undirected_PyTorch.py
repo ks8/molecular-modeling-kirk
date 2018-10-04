@@ -1,5 +1,6 @@
-"""Transform a COO format graph to undirected, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
+"""Transform a COO format graph to undirected graph, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
 # Load modules
+from __future__ import print_function, division
 import torch
 
 def to_undirected(edge_index, num_nodes):

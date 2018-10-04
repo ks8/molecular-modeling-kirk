@@ -1,4 +1,4 @@
-"""Custom PyTorch data 2D glass data objects, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
+"""Custom PyTorch graph data objects, adapted from PyTorch Geometric repository at https://github.com/rusty1s/pytorch_geometric, by Kirk Swanson"""
 # Load modules
 from __future__ import print_function, division
 import torch
@@ -7,16 +7,16 @@ from isolated_PyTorch import contains_isolated_nodes
 
 # Data class
 class Data(object):
-	"""Custom data class for 2D glass data objects """
+	"""Custom data class for graph objects """
 
 	def __init__(self, x=None, edge_index=None, edge_attr=None, y=None, pos=None):
 		"""
 		Args:
-			x (torch.Tensor): node feature matrix, shape [num_nodes, num_node_features]
+			x (torch.Tensor, preferable type torch.float): node feature matrix, shape [num_nodes, num_node_features]
 			edge_index (torch.Tensor of dype torch.long): graph connectivity matrix in COO format, shape [2, num_edges]
-			edge_attr (torch.Tensor): edge feature matrix, shape [num_edges, num_edge_features]
-			y (torch.Tensor): target data, shape arbitrary
-			pos (torch.Tensor): node position matrix, shape [num_nodes, num_dimensions]
+			edge_attr (torch.Tensor, preferably type torch.float): edge feature matrix, shape [num_edges, num_edge_features]
+			y (torch.Tensor): target data, shape arbitrary, but ideally has one dimension only 
+			pos (torch.Tensor of type torch.float): node position matrix, shape [num_nodes, num_dimensions]
 
 			Note: below, 'data' refers to an example instance of Data()
 		"""
@@ -66,6 +66,10 @@ class Data(object):
 			if self[key] is not None:
 				yield key, self[key]
 
+	def cat_dim(self, key):
+		"""Helper function for determining how to concatenate data attributes"""
+		return -1 if self[key].dtype == torch.long else 0
+
 	@property
 	def num_nodes(self):
 		"""Returns the 0th index of data.x or data.pos for the number of nodes in the system.  data.x and data.pos should have the same 0th index"""
@@ -101,6 +105,10 @@ class Data(object):
 		for key, item in self(*keys):
 			self[key] = func(item)
 		return self
+
+	def contiguous(self, *keys):
+		"""Apply Pytorch contiguity to every key (if *keys is blank) or to a specific set of specified *keys"""
+		return self.apply(lambda x: x.contiguous(), *keys)
 
 	def to(self, device, *keys):
 		"""Move data attributes to device.  data.to(device) moves all attributes to device, while data.to(device, 'x', 'pos') moves only data.x and data.pos to device"""
