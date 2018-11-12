@@ -5,6 +5,7 @@ import torch
 
 class GlassBatchMolGraph:
     def __init__(self, example):
+        self.batch_size = len(torch.unique(example.batch))
         self.atom_fdim = example.pos.size(1) + example.x.size(1)
         bond_fdim = example.edge_attr.size(1)
         self.bond_fdim = self.atom_fdim + bond_fdim  # bond features are really combined atom/bond features
@@ -84,3 +85,6 @@ class GlassBatchMolGraph:
                                       torch.LongTensor, torch.LongTensor, torch.LongTensor,
                                       List[Tuple[int, int]], List[Tuple[int, int]]]:
         return self.f_atoms, self.f_bonds, self.a2b, self.b2a, self.b2revb, self.a_scope, self.b_scope
+
+    def __len__(self) -> int:
+        return self.batch_size
