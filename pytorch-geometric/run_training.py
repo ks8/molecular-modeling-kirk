@@ -2,7 +2,6 @@ from argparse import Namespace
 from logging import Logger
 import os
 from pprint import pformat
-from typing import List
 
 import numpy as np
 from tensorboardX import SummaryWriter
@@ -12,19 +11,19 @@ from tqdm import trange
 from compose_PyTorch import Compose
 from dataloader_PyTorch import DataLoader
 from distance_PyTorch import Distance
-from evaluate import evaluate, evaluate_predictions
+from evaluate import evaluate
 from GlassDataset_PyTorch import GlassDataset
 from model import build_model
 from nngraph_PyTorch import NNGraph
-from predict import predict
 from train import train
+from utils import load_checkpoint, save_checkpoint
 
 from chemprop.nn_utils import NoamLR, param_count
 from chemprop.parsing import parse_train_args
-from chemprop.utils import get_loss_func, get_metric_func, load_checkpoint, save_checkpoint
+from chemprop.utils import get_loss_func, get_metric_func
 
 
-def run_training(args: Namespace, logger: Logger = None) -> List[float]:
+def run_training(args: Namespace, logger: Logger = None):
     """Trains a model and returns test scores on the model checkpoint with the highest validation score"""
     if logger is not None:
         debug, info = logger.debug, logger.info
@@ -34,7 +33,8 @@ def run_training(args: Namespace, logger: Logger = None) -> List[float]:
     debug(pformat(vars(args)))
 
     debug('Loading data')
-    data = GlassDataset('metadata/metadata.json', transform=Compose([NNGraph(5), Distance(False)]))
+    data = GlassDataset('metadata/short_metadata.json', transform=Compose([NNGraph(5), Distance(False)]))
+    args.batch_size = 5
     args.atom_fdim = 3
     args.bond_fdim = args.atom_fdim + 1
     train_data = val_data = test_data = data  # TODO: get separate val/test sets
@@ -48,11 +48,8 @@ def run_training(args: Namespace, logger: Logger = None) -> List[float]:
         len(test_data))
     )
 
-    # Set up test set evaluation
-    sum_test_preds = np.zeros((test_data_length, args.num_tasks))
-
     # Convert to iterators
-    data = iter(DataLoader(data, batch_size=args.batch_size))
+    data = DataLoader(data, batch_size=args.batch_size)
     train_data = val_data = test_data = data  # TODO: get separate val/test sets
 
     # Get loss and metric functions
@@ -69,24 +66,20 @@ def run_training(args: Namespace, logger: Logger = None) -> List[float]:
         # Load/build model
         if args.checkpoint_paths is not None:
             debug('Loading model {} from {}'.format(model_idx, args.checkpoint_paths[model_idx]))
-            model, _, _, _ = load_checkpoint(args.checkpoint_paths[model_idx],
-                                             current_args=args,
-                                             num_tasks=args.num_tasks,
-                                             dataset_type=args.dataset_type,
-                                             encoder_only=args.load_encoder_only,
-                                             logger=logger)
+            model = load_checkpoint(args.checkpoint_paths[model_idx])
         else:
             debug('Building model {}'.format(model_idx))
             model = build_model(args)
 
         debug(model)
         debug('Number of parameters = {:,}'.format(param_count(model)))
+
         if args.cuda:
             debug('Moving model to cuda')
             model = model.cuda()
 
         # Ensure that model is saved in correct location for evaluation if 0 epochs
-        save_checkpoint(model, None, None, args, os.path.join(save_dir, 'model.pt'))
+        save_checkpoint(model, args, os.path.join(save_dir, 'model.pt'))
 
         # Optimizer and learning rate scheduler
         optimizer = Adam(model.parameters(), lr=args.init_lr, weight_decay=args.weight_decay)
@@ -133,40 +126,23 @@ def run_training(args: Namespace, logger: Logger = None) -> List[float]:
             if args.minimize_score and avg_val_score < best_score or \
                     not args.minimize_score and avg_val_score > best_score:
                 best_score, best_epoch = avg_val_score, epoch
-                save_checkpoint(model, None, None, args, os.path.join(save_dir, 'model.pt'))
+                save_checkpoint(model, args, os.path.join(save_dir, 'model.pt'))
 
         # Evaluate on test set using model using model with best validation score
         info('Model {} best validation {} = {:.3f} on epoch {}'.format(model_idx, args.metric, best_score, best_epoch))
-        model, _, _, _ = load_checkpoint(os.path.join(save_dir, 'model.pt'), cuda=args.cuda, logger=logger)
-        test_preds = predict(
+        model = load_checkpoint(os.path.join(save_dir, 'model.pt'), cuda=args.cuda)
+
+        test_scores = evaluate(
             model=model,
             data=test_data,
+            metric_func=metric_func,
             args=args
         )
-        test_scores = evaluate_predictions(
-            preds=test_preds,
-            targets=test_data.targets(),  # TODO: implement targets
-            metric_func=metric_func
-        )
-        sum_test_preds += np.array(test_preds)
 
         # Average test score
         avg_test_score = np.mean(test_scores)
         info('Model {} test {} = {:.3f}'.format(model_idx, args.metric, avg_test_score))
         writer.add_scalar('test_{}'.format(args.metric), avg_test_score, n_iter)
-
-    # Evaluate ensemble on test set
-    avg_test_preds = sum_test_preds / args.ensemble_size
-    ensemble_scores = evaluate_predictions(
-        preds=avg_test_preds.tolist(),
-        targets=test_data.targets(),
-        metric_func=metric_func
-    )
-
-    # Average ensemble score
-    info('Ensemble test {} = {:.3f}'.format(args.metric, np.mean(ensemble_scores)))
-
-    return ensemble_scores
 
 
 if __name__ == '__main__':

@@ -1,6 +1,6 @@
 from argparse import Namespace
 import logging
-from typing import Callable
+from typing import Callable, Iterator
 
 from tensorboardX import SummaryWriter
 import torch.nn as nn
@@ -10,12 +10,12 @@ from tqdm import tqdm
 
 from chemprop.nn_utils import compute_gnorm, compute_pnorm, NoamLR
 
+from dataloader_PyTorch import DataLoader
 from GlassBatchMolGraph import GlassBatchMolGraph
-from GlassDataset_PyTorch import GlassDataset
 
 
 def train(model: nn.Module,
-          data: GlassDataset,
+          data: DataLoader,
           loss_func: Callable,
           optimizer: Optimizer,
           scheduler: NoamLR,
@@ -27,7 +27,7 @@ def train(model: nn.Module,
     Trains a model for an epoch.
 
     :param model: Model.
-    :param data: A MoleculeDataset (or a list of MoleculeDatasets if using moe).
+    :param data: A DataLoader.
     :param loss_func: Loss function.
     :param optimizer: Optimizer.
     :param scheduler: A NoamLR learning rate scheduler.

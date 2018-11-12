@@ -4,18 +4,18 @@ from typing import List
 import torch
 import torch.nn as nn
 
+from dataloader_PyTorch import DataLoader
 from GlassBatchMolGraph import GlassBatchMolGraph
-from GlassDataset_PyTorch import GlassDataset
 
 
 def predict(model: nn.Module,
-            data: GlassDataset,
+            data: DataLoader,
             args: Namespace) -> List[List[float]]:
     """
     Makes predictions on a dataset using an ensemble of models.
 
     :param model: A model.
-    :param data: A GlassDataset.
+    :param data: A DataLoader.
     :param args: Arguments.
     :return: A list of lists of predictions. The outer list is examples
     while the inner list is tasks.
