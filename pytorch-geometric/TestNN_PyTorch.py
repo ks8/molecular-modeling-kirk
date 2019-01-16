@@ -1,29 +1,26 @@
-"""Test neural network for glass data, by Kirk Swanson"""
-# Load modules
+"""Test neural network for glass data, by Kirk Swanson (and Kyle Swanson)"""
+
+from GlassBatchMolGraph import GlassBatchMolGraph
 from GlassDataset_PyTorch import GlassDataset
 from nngraph_PyTorch import NNGraph 
 from distance_PyTorch import Distance 
 from compose_PyTorch import Compose
 from dataloader_PyTorch import DataLoader
-import torch 
-import torch.nn as nn 
-import torch.nn.functional as F 
 
 # Load the dataset from metadata folder, which is constructed using GlassMetadata.py
+# TODO: From Shubhendu, make number of neighbors log(n)
 dataset = GlassDataset('metadata/metadata.json', transform=Compose([NNGraph(5), Distance(False)]))
 
 # Create a dataloader
-dataloader = DataLoader(dataset, batch_size=2)
-
+batch_size = 5
+dataloader = DataLoader(dataset, batch_size=batch_size)
 dataloader = iter(dataloader)
 
-example = dataloader.next()
 
-print(example.x.size())
-print(example.x)
-
-
-exit()
+example = next(dataloader)
+targets = example.y
+graph = GlassBatchMolGraph(example)
+print(graph)
 
 
 # class Net(nn.Module):
